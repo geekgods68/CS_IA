@@ -1,0 +1,13 @@
+/* site.css: Add your custom styles here */
+body {
+    background-color: #f8f9fa;
+}
+
+h2, h4 {
+    color: #2c3e50;
+}
+
+.card-header {
+    background-color: #007bff;
+    color: #fff;
+}

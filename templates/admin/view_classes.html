@@ -1,0 +1,26 @@
+{% extends 'admin/sidebar.html' %}
+{% block content %}
+<h2>Classes</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Grade</th>
+            <th>Batch</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for class in classes %}
+        <tr>
+            <td>{{ class[0] }}</td>
+            <td>{{ class[1] }}</td>
+            <td>{{ class[2] }}</td>
+            <td>{{ class[3] }}</td>
+            <td><a href="{{ url_for('admin.view_class', class_id=class[0]) }}" class="btn btn-sm btn-info">View</a></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

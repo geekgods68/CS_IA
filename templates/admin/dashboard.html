@@ -1,0 +1,34 @@
+{% extends 'admin/sidebar.html' %}
+{% block content %}
+<h2>Admin Dashboard</h2>
+
+<div class="card mb-4">
+    <div class="card-header">Schedule Management</div>
+    <div class="card-body">
+                <ul class="list-group">
+                        <li class="list-group-item"><a href="{{ url_for('admin.create_class') }}">Create Class</a></li>
+                        <li class="list-group-item"><a href="{{ url_for('admin.add_students') }}">Add Students to Class</a></li>
+                        <li class="list-group-item"><a href="{{ url_for('admin.create_subject') }}">Create Subjects under Class</a></li>
+                        <li class="list-group-item"><a href="{{ url_for('admin.view_classes') }}">View Classes, Subjects & Students</a></li>
+                </ul>
+    </div>
+</div>
+
+<h4>Users</h4>
+<table class="table table-bordered">
+        <thead>
+                <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                </tr>
+        </thead>
+        <tbody>
+                {% for user in users %}
+                <tr>
+                        <td>{{ user[0] }}</td>
+                        <td>{{ user[1] }}</td>
+                </tr>
+                {% endfor %}
+        </tbody>
+</table>
+{% endblock %}

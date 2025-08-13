@@ -1,0 +1,43 @@
+{% extends 'admin/sidebar.html' %}
+{% block content %}
+<h2>Users</h2>
+<form method="POST" class="mb-4">
+    <div class="row g-2">
+        <div class="col-md-3">
+            <input type="text" name="username" class="form-control" placeholder="Username" required>
+        </div>
+        <div class="col-md-3">
+            <input type="password" name="password" class="form-control" placeholder="Password" required>
+        </div>
+        <div class="col-md-3">
+            <select name="role_id" class="form-select" required>
+                <option value="">Select Role</option>
+                {% for role in roles %}
+                <option value="{{ role[0] }}">{{ role[1] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary">Create User</button>
+        </div>
+    </div>
+</form>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Role</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user[0] }}</td>
+            <td>{{ user[1] }}</td>
+            <td>{{ user[2] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

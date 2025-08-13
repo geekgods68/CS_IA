@@ -1,0 +1,19 @@
+{% extends 'admin/sidebar.html' %}
+{% block content %}
+<h2>Create Class</h2>
+<form method="post">
+  <div class="mb-3">
+    <label for="name" class="form-label">Class Name</label>
+    <input type="text" class="form-control" id="name" name="name" required>
+  </div>
+  <div class="mb-3">
+    <label for="grade" class="form-label">Grade</label>
+    <input type="text" class="form-control" id="grade" name="grade" required>
+  </div>
+  <div class="mb-3">
+    <label for="batch" class="form-label">Batch</label>
+    <input type="text" class="form-control" id="batch" name="batch">
+  </div>
+  <button type="submit" class="btn btn-primary">Create</button>
+</form>
+{% endblock %}
