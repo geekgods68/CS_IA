@@ -61,10 +61,8 @@ def users():
     cur.execute('SELECT id, name, type FROM classes WHERE status = "active" ORDER BY name')
     classes = cur.fetchall()
     
-    # Get all subjects for teacher/student assignment
-    cur.execute('SELECT DISTINCT name FROM subjects ORDER BY name')
-    subjects_data = cur.fetchall()
-    subjects = [row[0] for row in subjects_data]
+    # Fixed subjects list
+    subjects = ['Math', 'Science', 'Social Science', 'English', 'Hindi']
     
     # Get existing users for display
     cur.execute('''
@@ -283,10 +281,8 @@ def edit_student(student_id):
     ''', (student_id,))
     assigned_classes = cur.fetchall()
     
-    # Get all subjects
-    cur.execute('SELECT DISTINCT name FROM subjects ORDER BY name')
-    all_subjects_data = cur.fetchall()
-    all_subjects = [row[0] for row in all_subjects_data]
+    # Fixed subjects list
+    available_subjects = ['Math', 'Science', 'Social Science', 'English', 'Hindi']
     
     # Get assigned subjects
     cur.execute('SELECT subject_name FROM student_subjects WHERE student_id = ? ORDER BY subject_name', (student_id,))
@@ -297,10 +293,10 @@ def edit_student(student_id):
     
     return render_template('admin/edit_student.html',
                          student_id=student_id,
-                         student_username=student[0],
+                         student_name=student[0],
                          all_classes=all_classes,
-                         assigned_classes=assigned_classes,
-                         all_subjects=all_subjects,
+                         assigned_classes=[cls[0] for cls in assigned_classes],
+                         available_subjects=available_subjects,
                          assigned_subjects=assigned_subjects)
 
 @admin_bp.route('/edit_student/<int:student_id>', methods=['POST'])
@@ -375,10 +371,8 @@ def edit_teacher(teacher_id):
     ''', (teacher_id,))
     assigned_classes = cur.fetchall()
     
-    # Get all subjects
-    cur.execute('SELECT DISTINCT name FROM subjects ORDER BY name')
-    all_subjects_data = cur.fetchall()
-    all_subjects = [row[0] for row in all_subjects_data]
+    # Fixed subjects list
+    available_subjects = ['Math', 'Science', 'Social Science', 'English', 'Hindi']
     
     # Get assigned subjects
     cur.execute('SELECT subject_name FROM teacher_subjects WHERE teacher_id = ? ORDER BY subject_name', (teacher_id,))
@@ -389,10 +383,10 @@ def edit_teacher(teacher_id):
     
     return render_template('admin/edit_teacher.html',
                          teacher_id=teacher_id,
-                         teacher_username=teacher[0],
+                         teacher_name=teacher[0],
                          all_classes=all_classes,
-                         assigned_classes=assigned_classes,
-                         all_subjects=all_subjects,
+                         assigned_classes=[cls[0] for cls in assigned_classes],
+                         available_subjects=available_subjects,
                          assigned_subjects=assigned_subjects)
 
 @admin_bp.route('/edit_teacher/<int:teacher_id>', methods=['POST'])
@@ -695,58 +689,8 @@ def assign_students():
     
     return redirect(url_for('admin.add_students'))
 
-@admin_bp.route('/create_subject')
-def create_subject():
-    """Create subject page"""
-    if 'role' not in session or session['role'] != 'admin':
-        return redirect(url_for('auth.login'))
-    
-    conn = get_db()
-    cur = conn.cursor()
-    
-    # Get all classes for dropdown
-    cur.execute('SELECT id, name, type FROM classes WHERE status = "active" ORDER BY name')
-    classes = cur.fetchall()
-    
-    conn.close()
-    return render_template('admin/create_subject.html', classes=classes)
-
-@admin_bp.route('/create_subject', methods=['POST'])
-def add_subject():
-    """Add new subject"""
-    if 'role' not in session or session['role'] != 'admin':
-        return redirect(url_for('auth.login'))
-    
-    name = request.form['name']
-    description = request.form.get('description', '')
-    class_id = request.form.get('class_id')
-    current_user = get_current_user()
-    
-    conn = get_db()
-    cur = conn.cursor()
-    
-    try:
-        # Check if subject already exists
-        cur.execute('SELECT id FROM subjects WHERE name = ?', (name,))
-        if cur.fetchone():
-            flash('Subject already exists!', 'error')
-            return redirect(url_for('admin.create_subject'))
-        
-        # Insert subject
-        cur.execute('INSERT INTO subjects (name, description, created_by) VALUES (?, ?, ?)',
-                   (name, description, current_user.id))
-        
-        conn.commit()
-        flash(f'Subject "{name}" created successfully!', 'success')
-        
-    except Exception as e:
-        conn.rollback()
-        flash(f'Error creating subject: {str(e)}', 'error')
-    
-    finally:
-        conn.close()
-    
-    return redirect(url_for('admin.create_subject'))
+# Subject creation functionality removed - using fixed subject list now
+# Fixed subjects: Math, Science, Social Science, English, Hindi
 
 @admin_bp.route('/view_feedback')
 def view_feedback():
