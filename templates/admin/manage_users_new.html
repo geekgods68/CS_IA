@@ -246,21 +246,48 @@ function viewUser(userId, username, role) {
                 <div style="background-color: #f8f9fa; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
                     <h6 style="color: #3b82f6; margin: 0 0 12px 0;">Basic Information</h6>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                        <div><strong>ID:</strong> ${data.id}</div>
+                        <div><strong>ID:</strong> ${userId}</div>
                         <div><strong>Username:</strong> ${data.username}</div>
                         <div><strong>Role:</strong> ${data.role || 'No Role'}</div>
                         <div><strong>Name:</strong> ${data.name || 'Not provided'}</div>
                         <div><strong>Email:</strong> ${data.email || 'Not provided'}</div>
-                        <div><strong>Created:</strong> ${data.created_on || 'Unknown'}</div>
                     </div>
                 </div>
             `;
             
-            if (data.role_details) {
+            // Add role-specific information for students and teachers
+            if (data.role === 'student' || data.role === 'teacher') {
                 content += `
-                    <div style="background-color: #f0f9ff; border-radius: 8px; padding: 16px;">
-                        <h6 style="color: #0891b2; margin: 0 0 12px 0;">Role-Specific Information</h6>
-                        ${data.role_details}
+                    <div style="background-color: #f0f9ff; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                        <h6 style="color: #0891b2; margin: 0 0 12px 0;">${data.role === 'student' ? 'Student' : 'Teacher'} Information</h6>
+                        
+                        <!-- Subjects Section -->
+                        <div style="margin-bottom: 16px;">
+                            <h6 style="color: #9f7aea; margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">📚 ${data.role === 'student' ? 'Subject Interests' : 'Teaching Subjects'}</h6>
+                            ${data.subjects && data.subjects.length > 0 ? 
+                                `<div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                                    ${data.subjects.map(subject => 
+                                        `<span style="background: #9f7aea; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;">${subject}</span>`
+                                    ).join('')}
+                                </div>` : 
+                                `<p style="color: #6b7280; margin: 0; font-style: italic;">No subjects ${data.role === 'student' ? 'selected' : 'assigned'}</p>`
+                            }
+                        </div>
+                        
+                        <!-- Classes Section -->
+                        <div>
+                            <h6 style="color: #4299e1; margin: 0 0 8px 0; font-size: 14px; font-weight: 600;">🏫 ${data.role === 'student' ? 'Enrolled Classes' : 'Teaching Classes'}</h6>
+                            ${data.classes && data.classes.length > 0 ? 
+                                `<div style="display: flex; flex-direction: column; gap: 6px;">
+                                    ${data.classes.map(classInfo => 
+                                        `<div style="background: #ebf8ff; border: 1px solid #4299e1; border-radius: 6px; padding: 8px 12px; font-size: 13px; color: #1e40af;">
+                                            <i class="bi bi-mortarboard" style="margin-right: 6px;"></i>${classInfo}
+                                        </div>`
+                                    ).join('')}
+                                </div>` : 
+                                `<p style="color: #6b7280; margin: 0; font-style: italic;">No classes ${data.role === 'student' ? 'enrolled' : 'assigned'}</p>`
+                            }
+                        </div>
                     </div>
                 `;
             } else {

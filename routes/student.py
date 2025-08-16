@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_login import login_required, current_user
 import sqlite3
 import os
-from models.db_models import UserDB, UserRoleDB
 
 student_bp = Blueprint('student', __name__, url_prefix='/student')
 

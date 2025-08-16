@@ -253,11 +253,38 @@ function viewUser(userId, username, role) {
                 </div>
             `;
             
-            if (data.role_details) {
+            // Show assignments for students and teachers
+            if (data.role === 'student' || data.role === 'teacher') {
                 content += `
-                    <div style="background-color: #f0f9ff; border-radius: 8px; padding: 16px;">
-                        <h6 style="color: #0891b2; margin: 0 0 12px 0;">Role-Specific Information</h6>
-                        ${data.role_details}
+                    <div style="background-color: #f0f9ff; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                        <h6 style="color: #0891b2; margin: 0 0 12px 0;">Subjects</h6>
+                        <div style="margin-bottom: 12px;">
+                `;
+                
+                if (data.subjects && data.subjects.length > 0) {
+                    data.subjects.forEach(subject => {
+                        content += `<span style="background-color: #10b981; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; margin-right: 8px; margin-bottom: 4px; display: inline-block;">${subject}</span>`;
+                    });
+                } else {
+                    content += `<span style="color: #6b7280; font-style: italic;">No subjects assigned</span>`;
+                }
+                
+                content += `
+                        </div>
+                        <h6 style="color: #0891b2; margin: 12px 0 8px 0;">Classes</h6>
+                        <div>
+                `;
+                
+                if (data.classes && data.classes.length > 0) {
+                    data.classes.forEach(cls => {
+                        content += `<span style="background-color: #3b82f6; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px; margin-right: 8px; margin-bottom: 4px; display: inline-block;">${cls}</span>`;
+                    });
+                } else {
+                    content += `<span style="color: #6b7280; font-style: italic;">No classes assigned</span>`;
+                }
+                
+                content += `
+                        </div>
                     </div>
                 `;
             } else {

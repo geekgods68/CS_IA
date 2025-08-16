@@ -188,7 +188,7 @@ def get_user_details(user_id):
     try:
         # Get user basic info
         cur.execute('''
-            SELECT u.username, u.role, u.name, u.email
+            SELECT u.id, u.username, u.role, u.name, u.email, u.created_on
             FROM users u
             WHERE u.id = ?
         ''', (user_id,))
@@ -197,12 +197,14 @@ def get_user_details(user_id):
         if not user_info:
             return jsonify({'error': 'User not found'}), 404
         
-        username, role, name, email = user_info
+        user_id_db, username, role, name, email, created_on = user_info
         data = {
+            'id': user_id_db,
             'username': username,
             'role': role,
             'name': name,
             'email': email,
+            'created_on': created_on,
             'classes': [],
             'subjects': []
         }
@@ -214,7 +216,7 @@ def get_user_details(user_id):
                 SELECT c.name, c.type 
                 FROM classes c 
                 JOIN student_class_map scm ON c.id = scm.class_id 
-                WHERE scm.student_id = ?
+                WHERE scm.student_id = ? AND scm.status = 'active'
                 ORDER BY c.name
             ''', (user_id,))
             classes_data = cur.fetchall()
