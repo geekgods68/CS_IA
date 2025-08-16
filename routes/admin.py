@@ -637,13 +637,11 @@ def add_students():
     cur.execute('SELECT id, name, type FROM classes WHERE status = "active" ORDER BY name')
     classes = cur.fetchall()
     
-    # Get all students
+    # Get all students (only users with role 'student')
     cur.execute('''
-        SELECT u.id, u.username
+        SELECT u.id, u.username, u.name
         FROM users u
-        JOIN user_role_map urm ON u.id = urm.user_id
-        JOIN user_roles ur ON urm.role_id = ur.id
-        WHERE ur.role_name = 'student'
+        WHERE u.role = 'student'
         ORDER BY u.username
     ''')
     students = cur.fetchall()
