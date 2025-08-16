@@ -613,9 +613,21 @@ def view_class(class_id):
     ''', (class_id,))
     teachers = cur.fetchall()
     
-    # Get subjects
-    cur.execute('SELECT id, name, description FROM subjects WHERE class_id = ? ORDER BY name', (class_id,))
-    subjects = cur.fetchall()
+    # Get subjects taught in this class (from assigned students and teachers)
+    cur.execute('''
+        SELECT DISTINCT ss.subject_name
+        FROM student_subjects ss
+        JOIN student_class_map scm ON ss.student_id = scm.student_id
+        WHERE scm.class_id = ? AND scm.status = 'active'
+        UNION
+        SELECT DISTINCT ts.subject_name
+        FROM teacher_subjects ts
+        JOIN teacher_class_map tcm ON ts.teacher_id = tcm.teacher_id
+        WHERE tcm.class_id = ?
+        ORDER BY subject_name
+    ''', (class_id, class_id))
+    subjects_data = cur.fetchall()
+    subjects = [{'name': row[0]} for row in subjects_data]
     
     conn.close()
     return render_template('admin/view_class.html',
