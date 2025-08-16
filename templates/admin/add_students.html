@@ -1,24 +1,109 @@
 {% extends 'admin/sidebar.html' %}
 {% block content %}
-<h2>Add Students to Class</h2>
-<form method="post">
-  <div class="mb-3">
-    <label for="class_id" class="form-label">Select Class</label>
-    <select class="form-select" id="class_id" name="class_id" required>
-      {% for class in classes %}
-      <option value="{{ class[0] }}">{{ class[1] }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Select Students</label>
-    {% for student in students %}
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" name="student_ids" value="{{ student[0] }}" id="student{{ student[0] }}">
-        <label class="form-check-label" for="student{{ student[0] }}">{{ student[1] }}</label>
-      </div>
-    {% endfor %}
-  </div>
-  <button type="submit" class="btn btn-primary">Add Students</button>
+<div class="welcome-text">Welcome, admin!</div>
+<div class="page-title">Add Students to Class</div>
+
+<form method="POST" action="{{ url_for('admin.assign_students') }}" style="max-width: 600px;">
+    <!-- Select Class -->
+    <div style="margin-bottom: 32px;">
+        <label style="display: block; font-size: 16px; font-weight: 500; color: #374151; margin-bottom: 8px;">Select Class</label>
+        <select name="class_id" id="class_id" required style="width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid #d1d5db; border-radius: 6px; background-color: #ffffff;">
+            <option value="">Choose a class...</option>
+            <option value="1" selected>Class 10</option>
+            <option value="2">Class 11</option>
+            <option value="3">Class 12</option>
+            <option value="4">Math Session A</option>
+            <option value="5">Science Session B</option>
+            <option value="6">History Class</option>
+            <option value="7">English Literature</option>
+        </select>
+    </div>
+
+    <!-- Select Students -->
+    <div style="margin-bottom: 32px;">
+        <label style="display: block; font-size: 16px; font-weight: 500; color: #374151; margin-bottom: 16px;">Select Students</label>
+        
+        <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 0;">
+            <!-- Student List -->
+            <label style="display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; cursor: pointer; margin: 0;" for="student1">
+                <input type="checkbox" name="student_ids" value="1" id="student1" style="margin-right: 12px; width: 16px; height: 16px;">
+                <span style="font-size: 16px; color: #374151;">Student1</span>
+            </label>
+            
+            <label style="display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; cursor: pointer; margin: 0;" for="student3">
+                <input type="checkbox" name="student_ids" value="3" id="student3" style="margin-right: 12px; width: 16px; height: 16px;">
+                <span style="font-size: 16px; color: #374151;">Student3</span>
+            </label>
+            
+            <label style="display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; cursor: pointer; margin: 0;" for="student5">
+                <input type="checkbox" name="student_ids" value="5" id="student5" style="margin-right: 12px; width: 16px; height: 16px;">
+                <span style="font-size: 16px; color: #374151;">Student5</span>
+            </label>
+            
+            <label style="display: flex; align-items: center; padding: 12px 16px; border-bottom: 1px solid #e5e7eb; cursor: pointer; margin: 0;" for="teacher1">
+                <input type="checkbox" name="student_ids" value="101" id="teacher1" style="margin-right: 12px; width: 16px; height: 16px;">
+                <span style="font-size: 16px; color: #374151;">Teacher1</span>
+            </label>
+            
+            <label style="display: flex; align-items: center; padding: 12px 16px; cursor: pointer; margin: 0;" for="admin">
+                <input type="checkbox" name="student_ids" value="100" id="admin" style="margin-right: 12px; width: 16px; height: 16px;">
+                <span style="font-size: 16px; color: #374151;">admin</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Add Students Button -->
+    <div>
+        <button type="submit" style="background-color: #3b82f6; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; cursor: pointer;">
+            Add Students
+        </button>
+        <a href="{{ url_for('admin.dashboard') }}" style="background-color: #6b7280; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 6px; text-decoration: none; display: inline-block; margin-left: 12px;">
+            Cancel
+        </a>
+    </div>
 </form>
+
+<script>
+// Add focus styles for form elements
+document.addEventListener('DOMContentLoaded', function() {
+    const select = document.getElementById('class_id');
+    
+    select.addEventListener('focus', function() {
+        this.style.borderColor = '#3b82f6';
+        this.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+    });
+    
+    select.addEventListener('blur', function() {
+        this.style.borderColor = '#d1d5db';
+        this.style.boxShadow = 'none';
+    });
+
+    // Add hover effects for student items
+    const studentLabels = document.querySelectorAll('label[for^="student"], label[for="teacher1"], label[for="admin"]');
+    studentLabels.forEach(label => {
+        label.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+        });
+        
+        label.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = 'transparent';
+        });
+    });
+});
+</script>
+
+<style>
+button:hover, a:hover {
+    opacity: 0.9;
+    text-decoration: none !important;
+}
+
+input[type="checkbox"]:checked {
+    accent-color: #3b82f6;
+}
+
+input[type="checkbox"] {
+    accent-color: #3b82f6;
+}
+</style>
 {% endblock %}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements - Student Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('student.site') }}"><i class="bi bi-mortarboard-fill"></i> Student Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('student.site') }}">
+                    <i class="bi bi-house-door"></i> Dashboard
+                </a>
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h2 class="card-title text-info">
+                            <i class="bi bi-megaphone-fill"></i> Announcements
+                        </h2>
+                        <p class="card-text">Stay updated with important announcements from your teachers and school administration.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="bi bi-funnel"></i> Filter Announcements</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <select class="form-select" id="priorityFilter">
+                                    <option value="">All Priorities</option>
+                                    <option value="high">High Priority</option>
+                                    <option value="medium">Medium Priority</option>
+                                    <option value="low">Low Priority</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <select class="form-select" id="subjectFilter">
+                                    <option value="">All Subjects</option>
+                                    {% if student_subjects %}
+                                        {% for subject in student_subjects %}
+                                            <option value="{{ subject.subject_name }}">{{ subject.subject_name }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-primary" onclick="applyFilters()">
+                                    <i class="bi bi-search"></i> Apply Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Announcements List -->
+        <div class="row" id="announcementsList">
+            {% if announcements %}
+                {% for announcement in announcements %}
+                <div class="col-12 mb-3">
+                    <div class="card {% if announcement[3] == 'high' %}border-danger{% elif announcement[3] == 'medium' %}border-warning{% else %}border-info{% endif %}">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-0">{{ announcement[1] }}</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-person"></i> {{ announcement[5] }} • 
+                                    <i class="bi bi-calendar"></i> {{ announcement[4] }}
+                                </small>
+                            </div>
+                            <div>
+                                {% if announcement[3] == 'high' %}
+                                    <span class="badge bg-danger">High Priority</span>
+                                {% elif announcement[3] == 'medium' %}
+                                    <span class="badge bg-warning">Medium Priority</span>
+                                {% else %}
+                                    <span class="badge bg-info">Low Priority</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ announcement[2] }}</p>
+                            {% if announcement[6] %}
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-tag"></i> Subject: {{ announcement[6] }}
+                                    </small>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- No announcements available -->
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <i class="bi bi-megaphone text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="text-muted mt-3">No Announcements Yet</h4>
+                        <p class="text-muted">Check back later for updates from your teachers.</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Empty State -->
+        {% if not announcements %}
+        <div class="row mt-4" id="emptyState" style="display: none;">
+            <div class="col-12">
+                <div class="text-center">
+                    <i class="bi bi-megaphone text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="text-muted mt-3">No Announcements Found</h4>
+                    <p class="text-muted">No announcements match your current filters.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Pagination -->
+        <nav aria-label="Announcements pagination" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function applyFilters() {
+            const priority = document.getElementById('priorityFilter').value;
+            const subject = document.getElementById('subjectFilter').value;
+            
+            console.log('Applying filters:', { priority, subject });
+            // This will be implemented with backend functionality
+            alert('Filters will be applied when backend is connected!');
+        }
+
+        // Mark announcements as read (future functionality)
+        function markAsRead(announcementId) {
+            console.log('Marking announcement as read:', announcementId);
+        }
+    </script>
+</body>
+</html>

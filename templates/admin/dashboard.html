@@ -1,34 +1,88 @@
 {% extends 'admin/sidebar.html' %}
 {% block content %}
-<h2>Admin Dashboard</h2>
+<div class="welcome-text">Welcome, admin!</div>
+<div class="page-title">Admin Dashboard</div>
 
-<div class="card mb-4">
-    <div class="card-header">Schedule Management</div>
-    <div class="card-body">
-                <ul class="list-group">
-                        <li class="list-group-item"><a href="{{ url_for('admin.create_class') }}">Create Class</a></li>
-                        <li class="list-group-item"><a href="{{ url_for('admin.add_students') }}">Add Students to Class</a></li>
-                        <li class="list-group-item"><a href="{{ url_for('admin.create_subject') }}">Create Subjects under Class</a></li>
-                        <li class="list-group-item"><a href="{{ url_for('admin.view_classes') }}">View Classes, Subjects & Students</a></li>
-                </ul>
-    </div>
+<div style="background-color: #3b82f6; color: white; padding: 16px 24px; font-size: 18px; font-weight: 500; margin-bottom: 24px; border-radius: 8px;">
+    Schedule Management
 </div>
 
-<h4>Users</h4>
-<table class="table table-bordered">
+<div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0; margin-bottom: 32px;">
+    <a href="{{ url_for('admin.create_class') }}" style="display: block; padding: 16px 24px; color: #3b82f6; text-decoration: none; border-bottom: 1px solid #e5e7eb; font-size: 16px;">
+        Create Class
+    </a>
+    <a href="{{ url_for('admin.add_students') }}" style="display: block; padding: 16px 24px; color: #3b82f6; text-decoration: none; border-bottom: 1px solid #e5e7eb; font-size: 16px;">
+        Add Students to Class
+    </a>
+    <a href="{{ url_for('admin.create_subject') }}" style="display: block; padding: 16px 24px; color: #3b82f6; text-decoration: none; border-bottom: 1px solid #e5e7eb; font-size: 16px;">
+        Create Subjects under Class
+    </a>
+    <a href="{{ url_for('admin.view_classes') }}" style="display: block; padding: 16px 24px; color: #3b82f6; text-decoration: none; font-size: 16px;">
+        View Classes, Subjects & Students
+    </a>
+</div>
+
+<!-- User Management Section -->
+<div style="background-color: #3b82f6; color: white; padding: 16px 24px; font-size: 18px; font-weight: 500; margin-bottom: 24px; border-radius: 8px;">
+    User Management
+</div>
+
+<div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0; margin-bottom: 32px;">
+    <a href="{{ url_for('admin.users') }}" style="display: block; padding: 16px 24px; color: #3b82f6; text-decoration: none; border-bottom: 1px solid #e5e7eb; font-size: 16px;">
+        Add New Users
+    </a>
+    <a href="{{ url_for('admin.manage_users') }}" style="display: block; padding: 16px 24px; color: #3b82f6; text-decoration: none; font-size: 16px;">
+        Manage/Remove Users
+    </a>
+</div>
+
+<!-- Users Table -->
+<div style="font-size: 24px; font-weight: 600; color: #1f2937; margin-bottom: 24px;">
+    Users
+</div>
+
+<div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse;">
         <thead>
-                <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                </tr>
+            <tr style="background-color: #f8f9fa; border-bottom: 2px solid #e5e7eb;">
+                <th style="padding: 16px; text-align: left; font-weight: 600; color: #374151; border-right: 1px solid #e5e7eb;">ID</th>
+                <th style="padding: 16px; text-align: left; font-weight: 600; color: #374151;">Username</th>
+            </tr>
         </thead>
         <tbody>
-                {% for user in users %}
-                <tr>
-                        <td>{{ user[0] }}</td>
-                        <td>{{ user[1] }}</td>
-                </tr>
-                {% endfor %}
+            <!-- Mock data matching the screenshot -->
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">2</td>
+                <td style="padding: 16px; color: #374151;">Student1</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">6</td>
+                <td style="padding: 16px; color: #374151;">Student3</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">5</td>
+                <td style="padding: 16px; color: #374151;">Student5</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">3</td>
+                <td style="padding: 16px; color: #374151;">Teacher1</td>
+            </tr>
+            <tr>
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">1</td>
+                <td style="padding: 16px; color: #374151;">admin</td>
+            </tr>
         </tbody>
-</table>
+    </table>
+</div>
+
+<style>
+    a:hover {
+        background-color: #f8f9fa !important;
+        text-decoration: none !important;
+    }
+    
+    table tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
 {% endblock %}

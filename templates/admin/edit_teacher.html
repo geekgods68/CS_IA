@@ -1,0 +1,158 @@
+{% extends 'admin/sidebar.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Edit Teacher: {{ teacher_name }}</h2>
+    <a href="{{ url_for('admin.manage_users') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Users
+    </a>
+</div>
+
+<!-- Flash Messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="row mb-3">
+            <div class="col-12">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+{% endwith %}
+
+<form method="POST" id="editTeacherForm">
+    <div class="row">
+        <!-- Subject Assignment -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-book"></i> Teaching Subjects</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Select the subjects this teacher will teach:</p>
+                    {% for subject in available_subjects %}
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" 
+                               id="subject_{{ loop.index }}" 
+                               name="subjects" 
+                               value="{{ subject }}"
+                               {% if subject in assigned_subjects %}checked{% endif %}>
+                        <label class="form-check-label" for="subject_{{ loop.index }}">
+                            <i class="bi bi-journal-text text-primary"></i> {{ subject }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Class Assignment -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-people"></i> Teaching Classes</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Select the classes this teacher will teach:</p>
+                    {% for class_info in all_classes %}
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" 
+                               id="class_{{ class_info[0] }}" 
+                               name="classes" 
+                               value="{{ class_info[0] }}"
+                               {% if class_info[0] in assigned_classes %}checked{% endif %}>
+                        <label class="form-check-label" for="class_{{ class_info[0] }}">
+                            {% if class_info[2] == 'session' %}
+                                <i class="bi bi-calendar-event text-info"></i> {{ class_info[1] }} (Session)
+                            {% else %}
+                                <i class="bi bi-mortarboard text-success"></i> {{ class_info[1] }} (Class)
+                            {% endif %}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-check-circle"></i> Update Teacher Assignments
+                    </button>
+                    <a href="{{ url_for('admin.manage_users') }}" class="btn btn-secondary btn-lg ms-3">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Current Assignments Summary -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="bi bi-info-circle"></i> Current Subject Assignments</h6>
+            </div>
+            <div class="card-body">
+                {% if assigned_subjects %}
+                    <ul class="list-unstyled mb-0">
+                        {% for subject in assigned_subjects %}
+                        <li class="mb-1">
+                            <i class="bi bi-check-circle text-success"></i> {{ subject }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-0">No subjects assigned</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="bi bi-info-circle"></i> Current Class Assignments</h6>
+            </div>
+            <div class="card-body">
+                {% if assigned_classes %}
+                    <ul class="list-unstyled mb-0">
+                        {% for class_info in assigned_classes %}
+                        <li class="mb-1">
+                            {% if class_info[2] == 'session' %}
+                                <i class="bi bi-check-circle text-success"></i> {{ class_info[1] }} (Session)
+                            {% else %}
+                                <i class="bi bi-check-circle text-success"></i> {{ class_info[1] }} (Class)
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted mb-0">No classes assigned</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Form validation
+document.getElementById('editTeacherForm').addEventListener('submit', function(e) {
+    const checkedSubjects = document.querySelectorAll('input[name="subjects"]:checked');
+    const checkedClasses = document.querySelectorAll('input[name="classes"]:checked');
+    
+    if (checkedSubjects.length === 0 && checkedClasses.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one subject or class for the teacher.');
+        return false;
+    }
+});
+</script>
+{% endblock %}

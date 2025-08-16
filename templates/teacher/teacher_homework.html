@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homework & Assignments - Teacher Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('teacher.dashboard') }}"><i class="bi bi-person-workspace"></i> Teacher Portal</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('teacher.dashboard') }}">
+                    <i class="bi bi-house-door"></i> Dashboard
+                </a>
+                <a class="nav-link" href="{{ url_for('auth.logout') }}">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Header Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h2 class="card-title text-danger">
+                            <i class="bi bi-file-earmark-pdf"></i> Homework & Assignments
+                        </h2>
+                        <p class="card-text">Upload new assignments and manage homework for your classes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-upload text-danger" style="font-size: 2rem;"></i>
+                        <h5 class="card-title mt-2">Upload New Assignment</h5>
+                        <p class="card-text">Create and upload homework for your classes</p>
+                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#uploadAssignmentModal">
+                            <i class="bi bi-plus-circle"></i> Upload Assignment
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="bi bi-eye text-primary" style="font-size: 2rem;"></i>
+                        <h5 class="card-title mt-2">Manage Assignments</h5>
+                        <p class="card-text">View, edit, and manage existing assignments</p>
+                        <button class="btn btn-primary" onclick="showAssignmentsList()">
+                            <i class="bi bi-list"></i> View All Assignments
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Assignments -->
+        <div class="row mb-4" id="assignmentsList">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-journal-text"></i> Current Assignments</h5>
+                        <div>
+                            <select class="form-select form-select-sm" id="classFilter" style="width: auto; display: inline-block;">
+                                <option value="">All Classes</option>
+                                {% if teacher_classes %}
+                                    {% for class in teacher_classes %}
+                                        <option value="{{ class.id }}">{{ class.name }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Assignment Title</th>
+                                        <th>Class</th>
+                                        <th>Subject</th>
+                                        <th>Upload Date</th>
+                                        <th>Due Date</th>
+                                        <th>Submissions</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if teacher_assignments %}
+                                        {% for assignment in teacher_assignments %}
+                                        <tr>
+                                            <td><strong>{{ assignment.title }}</strong></td>
+                                            <td>{{ assignment.class_name }}</td>
+                                            <td><span class="badge bg-primary">{{ assignment.subject_name }}</span></td>
+                                            <td>{{ assignment.upload_date.strftime('%b %d, %Y') if assignment.upload_date else '-' }}</td>
+                                            <td>{{ assignment.due_date.strftime('%b %d, %Y') if assignment.due_date else '-' }}</td>
+                                            <td>
+                                                <span class="badge bg-success">{{ assignment.submission_count or 0 }}/{{ assignment.total_students or 0 }}</span>
+                                                <small class="text-muted">submitted</small>
+                                            </td>
+                                            <td>
+                                                {% if assignment.status == 'active' %}
+                                                    <span class="badge bg-warning">Active</span>
+                                                {% elif assignment.status == 'completed' %}
+                                                    <span class="badge bg-success">Completed</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary">{{ assignment.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button class="btn btn-outline-primary" title="View Details">
+                                                        <i class="bi bi-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-secondary" title="Edit">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </button>
+                                                    <a href="{{ url_for('teacher.submissions') }}?assignment_id={{ assignment.id }}" class="btn btn-outline-success" title="View Submissions">
+                                                        <i class="bi bi-file-earmark-check"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted">No assignments created yet</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assignment Analytics -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Assignment Statistics</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-3">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body">
+                                        <h4>{{ assignment_stats.total or 0 }}</h4>
+                                        <p class="mb-0">Total Assignments</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-warning text-white">
+                                    <div class="card-body">
+                                        <h4>{{ assignment_stats.active or 0 }}</h4>
+                                        <p class="mb-0">Active</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-success text-white">
+                                    <div class="card-body">
+                                        <h4>{{ assignment_stats.completed or 0 }}</h4>
+                                        <p class="mb-0">Completed</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card bg-info text-white">
+                                    <div class="card-body">
+                                        <h4>{{ assignment_stats.avg_submission_rate or 0 }}%</h4>
+                                        <p class="mb-0">Avg Submission Rate</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Alerts</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning" role="alert">
+                            <small><strong>Due Soon:</strong> 3 assignments due in next 3 days</small>
+                        </div>
+                        <div class="alert alert-info" role="alert">
+                            <small><strong>Low Submission:</strong> Physics assignment has only 5/32 submissions</small>
+                        </div>
+                        <div class="alert alert-success" role="alert">
+                            <small><strong>Completed:</strong> Chemistry worksheet fully submitted</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Assignment Modal -->
+    <div class="modal fade" id="uploadAssignmentModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-upload"></i> Upload New Assignment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form enctype="multipart/form-data">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="assignmentClass" class="form-label">Select Class</label>
+                                <select class="form-select" id="assignmentClass" required>
+                                    <option value="">Choose class...</option>
+                                    {% for class in teacher_classes %}
+                                    <option value="{{ class.id }}">{{ class.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="assignmentSubject" class="form-label">Subject</label>
+                                <select class="form-select" id="assignmentSubject" required>
+                                    <option value="">Choose subject...</option>
+                                    {% for subject in teacher_subjects %}
+                                    <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="assignmentTitle" class="form-label">Assignment Title</label>
+                            <input type="text" class="form-control" id="assignmentTitle" placeholder="e.g., Chapter 5 Problem Set" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="assignmentDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="assignmentDescription" rows="4" placeholder="Describe the assignment, learning objectives, and any special instructions..."></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="assignmentDueDate" class="form-label">Due Date</label>
+                                <input type="datetime-local" class="form-control" id="assignmentDueDate" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="assignmentPoints" class="form-label">Total Points</label>
+                                <input type="number" class="form-control" id="assignmentPoints" placeholder="100" min="1" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="assignmentFile" class="form-label">Assignment File</label>
+                            <input type="file" class="form-control" id="assignmentFile" accept=".pdf,.doc,.docx,.txt" required>
+                            <div class="form-text">Accepted formats: PDF, DOC, DOCX, TXT (Max 10MB)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="assignmentType" class="form-label">Assignment Type</label>
+                            <select class="form-select" id="assignmentType" required>
+                                <option value="">Select type...</option>
+                                <option value="homework">Homework</option>
+                                <option value="quiz">Quiz</option>
+                                <option value="project">Project</option>
+                                <option value="lab">Lab Report</option>
+                                <option value="exam">Exam</option>
+                            </select>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="allowLateSubmission">
+                            <label class="form-check-label" for="allowLateSubmission">
+                                Allow late submissions (with penalty)
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="notifyStudents" checked>
+                            <label class="form-check-label" for="notifyStudents">
+                                Send notification to students
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger">
+                        <i class="bi bi-upload"></i> Upload Assignment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showAssignmentsList() {
+            document.getElementById('assignmentsList').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Class filter functionality
+        document.getElementById('classFilter').addEventListener('change', function() {
+            // Placeholder for filtering functionality
+            console.log('Filter by class:', this.value);
+        });
+    </script>
+</body>
+</html>

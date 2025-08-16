@@ -30,11 +30,9 @@ class StudentClassMapDB:
 
 # Updated Class model to support multiple subjects and teacher assignments
 class ClassDB:
-    def __init__(self, id, name, grade, batch=None, created_by=None, created_on=None, updated_by=None, updated_on=None):
+    def __init__(self, id, name, created_by=None, created_on=None, updated_by=None, updated_on=None):
         self.id = id
         self.name = name
-        self.grade = grade
-        self.batch = batch
         self.created_by = created_by
         self.created_on = created_on
         self.updated_by = updated_by

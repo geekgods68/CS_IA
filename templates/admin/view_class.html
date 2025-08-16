@@ -1,43 +1,193 @@
 {% extends 'admin/sidebar.html' %}
 {% block content %}
-<h2>Class: {{ class_info[0] }} (Grade: {{ class_info[1] }}, Batch: {{ class_info[2] }})</h2>
+<div class="welcome-text">Welcome, admin!</div>
+<div class="page-title">Class Details: Class 10</div>
 
-<h4>Subjects</h4>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Description</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for subject in subjects %}
-        <tr>
-            <td>{{ subject[0] }}</td>
-            <td>{{ subject[1] }}</td>
-            <td>{{ subject[2] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<!-- Class Information -->
+<div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+    <h3 style="margin-top: 0; margin-bottom: 16px; color: #374151; font-size: 20px; font-weight: 600;">Class Information</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+        <div>
+            <strong style="color: #6b7280;">Class Name:</strong>
+            <div style="margin-top: 4px; color: #374151;">Class 10</div>
+        </div>
+        <div>
+            <strong style="color: #6b7280;">Type:</strong>
+            <div style="margin-top: 4px;">
+                <span style="background-color: #3b82f6; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">Class</span>
+            </div>
+        </div>
+        <div>
+            <strong style="color: #6b7280;">Grade Level:</strong>
+            <div style="margin-top: 4px; color: #374151;">10</div>
+        </div>
+        <div>
+            <strong style="color: #6b7280;">Maximum Students:</strong>
+            <div style="margin-top: 4px; color: #374151;">30</div>
+        </div>
+    </div>
+</div>
 
-<h4>Students Assigned</h4>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Username</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for student in students %}
-        <tr>
-            <td>{{ student[0] }}</td>
-            <td>{{ student[1] }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<a href="{{ url_for('admin.view_classes') }}" class="btn btn-secondary">Back to Classes</a>
+<!-- Class Timings -->
+<div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+    <h3 style="margin-top: 0; margin-bottom: 16px; color: #374151; font-size: 20px; font-weight: 600;">Class Timings</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+        <div>
+            <strong style="color: #6b7280;">Start Time:</strong>
+            <div style="margin-top: 4px; color: #374151;">9:00 AM</div>
+        </div>
+        <div>
+            <strong style="color: #6b7280;">End Time:</strong>
+            <div style="margin-top: 4px; color: #374151;">3:00 PM</div>
+        </div>
+        <div>
+            <strong style="color: #6b7280;">Duration:</strong>
+            <div style="margin-top: 4px; color: #374151;">6 hours</div>
+        </div>
+    </div>
+</div>
+
+<!-- Weekly Schedule -->
+<div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+    <h3 style="margin-top: 0; margin-bottom: 16px; color: #374151; font-size: 20px; font-weight: 600;">Weekly Class Schedule</h3>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <span style="background-color: #10b981; color: white; padding: 6px 12px; border-radius: 16px; font-size: 14px;">Monday</span>
+        <span style="background-color: #10b981; color: white; padding: 6px 12px; border-radius: 16px; font-size: 14px;">Tuesday</span>
+        <span style="background-color: #10b981; color: white; padding: 6px 12px; border-radius: 16px; font-size: 14px;">Wednesday</span>
+        <span style="background-color: #10b981; color: white; padding: 6px 12px; border-radius: 16px; font-size: 14px;">Thursday</span>
+        <span style="background-color: #10b981; color: white; padding: 6px 12px; border-radius: 16px; font-size: 14px;">Friday</span>
+    </div>
+</div>
+
+<!-- Assigned Teachers -->
+<div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+    <h3 style="margin-top: 0; margin-bottom: 16px; color: #374151; font-size: 20px; font-weight: 600;">Assigned Teachers</h3>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #e5e7eb;">
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-right: 1px solid #e5e7eb;">ID</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-right: 1px solid #e5e7eb;">Name</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151;">Subject</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">101</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">Teacher1</td>
+                    <td style="padding: 12px; color: #374151;">Mathematics</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">102</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">Dr. Smith</td>
+                    <td style="padding: 12px; color: #374151;">Physics</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">103</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">Ms. Johnson</td>
+                    <td style="padding: 12px; color: #374151;">English</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Subjects -->
+<div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+    <h3 style="margin-top: 0; margin-bottom: 16px; color: #374151; font-size: 20px; font-weight: 600;">Subjects</h3>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #e5e7eb;">
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-right: 1px solid #e5e7eb;">ID</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-right: 1px solid #e5e7eb;">Name</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151;">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">1</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">Mathematics</td>
+                    <td style="padding: 12px; color: #374151;">Advanced mathematics including algebra and geometry</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">2</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">Physics</td>
+                    <td style="padding: 12px; color: #374151;">Classical mechanics and thermodynamics</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">3</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">English</td>
+                    <td style="padding: 12px; color: #374151;">Literature and communication skills</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">4</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">Chemistry</td>
+                    <td style="padding: 12px; color: #374151;">Organic and inorganic chemistry fundamentals</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Students Assigned -->
+<div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+    <h3 style="margin-top: 0; margin-bottom: 16px; color: #374151; font-size: 20px; font-weight: 600;">Students Assigned (15/30)</h3>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #e5e7eb;">
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-right: 1px solid #e5e7eb;">ID</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151; border-right: 1px solid #e5e7eb;">Username</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #374151;">Enrollment Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">1</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">Student1</td>
+                    <td style="padding: 12px; color: #374151;">2024-01-15</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">3</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">Student3</td>
+                    <td style="padding: 12px; color: #374151;">2024-01-16</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">5</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">Student5</td>
+                    <td style="padding: 12px; color: #374151;">2024-01-17</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">7</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">Student7</td>
+                    <td style="padding: 12px; color: #374151;">2024-01-18</td>
+                </tr>
+                <tr>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">9</td>
+                    <td style="padding: 12px; color: #374151; border-right: 1px solid #e5e7eb;">Student9</td>
+                    <td style="padding: 12px; color: #374151;">2024-01-19</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Back Button -->
+<div style="margin-top: 32px;">
+    <a href="{{ url_for('admin.view_classes') }}" style="background-color: #6b7280; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-size: 16px;">
+        ← Back to Classes
+    </a>
+</div>
+
+<style>
+a:hover {
+    opacity: 0.9;
+    text-decoration: none !important;
+}
+
+table tr:hover {
+    background-color: #f8f9fa;
+}
+</style>
 {% endblock %}

@@ -1,25 +1,199 @@
 {% extends 'admin/sidebar.html' %}
 {% block content %}
-<h2>Add User</h2>
-<form method="POST" class="mb-4">
-    <div class="row g-2">
-        <div class="col-md-3">
-            <input type="text" name="username" class="form-control" placeholder="Username" required>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+    <div>
+        <div class="welcome-text">Welcome, admin!</div>
+        <div class="page-title">Add New Users</div>
+    </div>
+    <a href="{{ url_for('admin.manage_users') }}" style="background-color: #3b82f6; color: white; padding: 12px 20px; border-radius: 6px; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+        👥 Manage Existing Users
+    </a>
+</div>
+
+<!-- Create New User Section -->
+<div style="background-color: #3b82f6; color: white; padding: 16px 24px; font-size: 18px; font-weight: 500; margin-bottom: 24px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+    👤 Create New User
+</div>
+
+<form method="POST" style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 32px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+        <!-- Username -->
+        <div>
+            <label style="display: block; font-size: 16px; font-weight: 500; color: #374151; margin-bottom: 8px;">Username</label>
+            <input type="text" name="username" id="username" required style="width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid #d1d5db; border-radius: 6px; background-color: #ffffff;" placeholder="Enter username">
         </div>
-        <div class="col-md-3">
-            <input type="password" name="password" class="form-control" placeholder="Password" required>
+        
+        <!-- Password -->
+        <div>
+            <label style="display: block; font-size: 16px; font-weight: 500; color: #374151; margin-bottom: 8px;">Password</label>
+            <input type="password" name="password" id="password" required style="width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid #d1d5db; border-radius: 6px; background-color: #ffffff;" placeholder="Enter password">
         </div>
-        <div class="col-md-3">
-            <select name="role_id" class="form-select" required>
+        
+        <!-- Role -->
+        <div>
+            <label style="display: block; font-size: 16px; font-weight: 500; color: #374151; margin-bottom: 8px;">Role</label>
+            <select name="role" id="role" required style="width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid #d1d5db; border-radius: 6px; background-color: #ffffff; color: #6b7280;">
                 <option value="">Select Role</option>
-                {% for role in roles %}
-                <option value="{{ role[0] }}">{{ role[1] }}</option>
-                {% endfor %}
+                <option value="admin">Admin</option>
+                <option value="teacher">Teacher</option>
+                <option value="student">Student</option>
             </select>
         </div>
-        <div class="col-md-3">
-            <button type="submit" class="btn btn-primary">Create User</button>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+        <!-- Name -->
+        <div>
+            <label style="display: block; font-size: 16px; font-weight: 500; color: #374151; margin-bottom: 8px;">Full Name</label>
+            <input type="text" name="name" id="name" style="width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid #d1d5db; border-radius: 6px; background-color: #ffffff;" placeholder="Enter full name (optional)">
+        </div>
+        
+        <!-- Email -->
+        <div>
+            <label style="display: block; font-size: 16px; font-weight: 500; color: #374151; margin-bottom: 8px;">Email</label>
+            <input type="email" name="email" id="email" style="width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid #d1d5db; border-radius: 6px; background-color: #ffffff;" placeholder="Enter email (optional)">
         </div>
     </div>
+    
+    <!-- Create User Button -->
+    <button type="submit" style="background-color: #10b981; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 16px; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+        ✓ Create User
+    </button>
 </form>
+
+<!-- Current Users Section -->
+<div style="background-color: #3b82f6; color: white; padding: 16px 24px; font-size: 18px; font-weight: 500; margin-bottom: 24px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+    👥 Current Users (5 total)
+</div>
+
+<div style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background-color: #374151; color: white;">
+                <th style="padding: 16px; text-align: left; font-weight: 600; border-right: 1px solid #4b5563;">ID</th>
+                <th style="padding: 16px; text-align: left; font-weight: 600; border-right: 1px solid #4b5563;">Username</th>
+                <th style="padding: 16px; text-align: left; font-weight: 600; border-right: 1px solid #4b5563;">Role</th>
+                <th style="padding: 16px; text-align: left; font-weight: 600;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Mock data matching the screenshot -->
+            <tr style="border-bottom: 1px solid #e5e7eb; background-color: #f8f9fa;">
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">1</td>
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb; display: flex; align-items: center; gap: 8px;">
+                    admin
+                    <span style="background-color: #06b6d4; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500;">You</span>
+                </td>
+                <td style="padding: 16px; border-right: 1px solid #e5e7eb;">
+                    <span style="background-color: #ef4444; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">Admin</span>
+                </td>
+                <td style="padding: 16px;">
+                    <button style="background-color: #3b82f6; color: white; border: none; padding: 6px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                        ⚙️ Manage
+                    </button>
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">2</td>
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">Student1</td>
+                <td style="padding: 16px; border-right: 1px solid #e5e7eb;">
+                    <span style="background-color: #3b82f6; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">Student</span>
+                </td>
+                <td style="padding: 16px;">
+                    <button style="background-color: #3b82f6; color: white; border: none; padding: 6px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                        ⚙️ Manage
+                    </button>
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb; background-color: #f8f9fa;">
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">3</td>
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">Teacher1</td>
+                <td style="padding: 16px; border-right: 1px solid #e5e7eb;">
+                    <span style="background-color: #10b981; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">Teacher</span>
+                </td>
+                <td style="padding: 16px;">
+                    <button style="background-color: #3b82f6; color: white; border: none; padding: 6px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                        ⚙️ Manage
+                    </button>
+                </td>
+            </tr>
+            <tr style="border-bottom: 1px solid #e5e7eb;">
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">5</td>
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">Student5</td>
+                <td style="padding: 16px; border-right: 1px solid #e5e7eb;">
+                    <span style="background-color: #3b82f6; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">Student</span>
+                </td>
+                <td style="padding: 16px;">
+                    <button style="background-color: #3b82f6; color: white; border: none; padding: 6px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                        ⚙️ Manage
+                    </button>
+                </td>
+            </tr>
+            <tr style="background-color: #f8f9fa;">
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">6</td>
+                <td style="padding: 16px; color: #374151; border-right: 1px solid #e5e7eb;">Student3</td>
+                <td style="padding: 16px; border-right: 1px solid #e5e7eb;">
+                    <span style="background-color: #3b82f6; color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 500;">Student</span>
+                </td>
+                <td style="padding: 16px;">
+                    <button style="background-color: #3b82f6; color: white; border: none; padding: 6px 16px; border-radius: 4px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                        ⚙️ Manage
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+// Add focus styles for form elements
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('input, select');
+    
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.style.borderColor = '#3b82f6';
+            this.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+        });
+        
+        input.addEventListener('blur', function() {
+            this.style.borderColor = '#d1d5db';
+            this.style.boxShadow = 'none';
+        });
+    });
+    
+    // Handle role selection styling
+    const roleSelect = document.getElementById('role_id');
+    roleSelect.addEventListener('change', function() {
+        if (this.value) {
+            this.style.color = '#374151';
+        } else {
+            this.style.color = '#6b7280';
+        }
+    });
+});
+</script>
+
+<style>
+button:hover, a:hover {
+    opacity: 0.9;
+    text-decoration: none !important;
+}
+
+input::placeholder {
+    color: #9ca3af;
+}
+
+select:invalid {
+    color: #9ca3af;
+}
+
+select option {
+    color: #374151;
+}
+
+table tr:hover {
+    background-color: #f8f9fa !important;
+}
+</style>
 {% endblock %}
