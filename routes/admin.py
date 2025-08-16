@@ -123,7 +123,7 @@ def add_user():
                            (user_id, class_id, current_user.id))
             
             # Assign subjects
-            subject_assignments = request.form.getlist('student_subjects')
+            subject_assignments = request.form.getlist('subjects')
             for subject in subject_assignments:
                 cur.execute('INSERT INTO student_subjects (student_id, subject_name, assigned_by) VALUES (?, ?, ?)',
                            (user_id, subject, current_user.id))
@@ -160,6 +160,8 @@ def manage_users():
     if 'role' not in session or session['role'] != 'admin':
         return redirect(url_for('auth.login'))
     
+    current_user = get_current_user()
+    
     conn = get_db()
     cur = conn.cursor()
     
@@ -172,7 +174,7 @@ def manage_users():
     users = cur.fetchall()
     
     conn.close()
-    return render_template('admin/manage_users.html', users=users)
+    return render_template('admin/manage_users.html', users=users, current_user=current_user)
 
 @admin_bp.route('/get_user_details/<int:user_id>')
 def get_user_details(user_id):

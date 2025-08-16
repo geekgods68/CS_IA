@@ -14,7 +14,11 @@
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
-            <div style="background-color: {{ '#fee2e2' if category == 'error' else '#d1fae5' }}; border: 1px solid {{ '#f87171' if category == 'error' else '#10b981' }}; border-radius: 8px; padding: 16px; margin-bottom: 16px; color: {{ '#dc2626' if category == 'error' else '#065f46' }};">
+            {% if category == 'error' %}
+            <div style="background-color: #fee2e2; border: 1px solid #f87171; border-radius: 8px; padding: 16px; margin-bottom: 16px; color: #dc2626;">
+            {% else %}
+            <div style="background-color: #d1fae5; border: 1px solid #10b981; border-radius: 8px; padding: 16px; margin-bottom: 16px; color: #065f46;">
+            {% endif %}
                 {{ message }}
             </div>
         {% endfor %}
@@ -169,7 +173,6 @@
 </div>
 
 <script>
-// Filter functionality
 document.addEventListener('DOMContentLoaded', function() {
     const roleFilter = document.getElementById('roleFilter');
     const searchUser = document.getElementById('searchUser');
@@ -322,26 +325,8 @@ select option {
     color: #374151;
 }
 
-table tbody tr:hover {
+table tr:hover {
     background-color: #f8f9fa !important;
-}
-
-table thead tr {
-    background-color: #374151 !important;
-}
-
-table thead tr:hover {
-    background-color: #374151 !important;
-}
-
-table thead th {
-    background-color: #374151 !important;
-    color: white !important;
-}
-
-table thead th:hover {
-    background-color: #374151 !important;
-    color: white !important;
 }
 </style>
 {% endblock %}

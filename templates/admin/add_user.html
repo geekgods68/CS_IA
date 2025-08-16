@@ -15,7 +15,7 @@
     👤 Create New User
 </div>
 
-<form method="POST" style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 32px;">
+<form method="POST" action="{{ url_for('admin.add_user') }}" style="background-color: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-bottom: 32px;">
     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-bottom: 24px;">
         <!-- Username -->
         <div>
@@ -52,6 +52,71 @@
         <div>
             <label style="display: block; font-size: 16px; font-weight: 500; color: #374151; margin-bottom: 8px;">Email</label>
             <input type="email" name="email" id="email" style="width: 100%; padding: 12px 16px; font-size: 16px; border: 1px solid #d1d5db; border-radius: 6px; background-color: #ffffff;" placeholder="Enter email (optional)">
+        </div>
+    </div>
+    
+    <!-- Student Subject Selection (hidden by default) -->
+    <div id="studentSubjectsSection" style="display: none; margin-bottom: 24px; padding: 24px; background-color: #f8fafc; border: 2px solid #e2e8f0; border-radius: 8px;">
+        <h3 style="color: #2d3748; margin: 0 0 20px 0; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px;">
+            📚 Subject Selection for Student
+        </h3>
+        <p style="color: #718096; margin-bottom: 20px;">Select the subjects this student will be interested in:</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+            <label style="display: flex; align-items: center; gap: 12px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; background: white;"
+                   onmouseover="if (!this.querySelector('input').checked) this.style.borderColor='#9f7aea'; if (!this.querySelector('input').checked) this.style.background='#faf5ff'"
+                   onmouseout="if (!this.querySelector('input').checked) this.style.borderColor='#e2e8f0'; if (!this.querySelector('input').checked) this.style.background='white'">
+                <input type="checkbox" name="subjects" value="Math" 
+                       style="width: 18px; height: 18px; accent-color: #9f7aea;"
+                       onchange="if (this.checked) { this.parentElement.style.borderColor='#9f7aea'; this.parentElement.style.background='#faf5ff'; } else { this.parentElement.style.borderColor='#e2e8f0'; this.parentElement.style.background='white'; }">
+                <span style="color: #2d3748; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                    📐 Math
+                </span>
+            </label>
+            
+            <label style="display: flex; align-items: center; gap: 12px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; background: white;"
+                   onmouseover="if (!this.querySelector('input').checked) this.style.borderColor='#9f7aea'; if (!this.querySelector('input').checked) this.style.background='#faf5ff'"
+                   onmouseout="if (!this.querySelector('input').checked) this.style.borderColor='#e2e8f0'; if (!this.querySelector('input').checked) this.style.background='white'">
+                <input type="checkbox" name="subjects" value="Science" 
+                       style="width: 18px; height: 18px; accent-color: #9f7aea;"
+                       onchange="if (this.checked) { this.parentElement.style.borderColor='#9f7aea'; this.parentElement.style.background='#faf5ff'; } else { this.parentElement.style.borderColor='#e2e8f0'; this.parentElement.style.background='white'; }">
+                <span style="color: #2d3748; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                    🔬 Science
+                </span>
+            </label>
+            
+            <label style="display: flex; align-items: center; gap: 12px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; background: white;"
+                   onmouseover="if (!this.querySelector('input').checked) this.style.borderColor='#9f7aea'; if (!this.querySelector('input').checked) this.style.background='#faf5ff'"
+                   onmouseout="if (!this.querySelector('input').checked) this.style.borderColor='#e2e8f0'; if (!this.querySelector('input').checked) this.style.background='white'">
+                <input type="checkbox" name="subjects" value="Social Science" 
+                       style="width: 18px; height: 18px; accent-color: #9f7aea;"
+                       onchange="if (this.checked) { this.parentElement.style.borderColor='#9f7aea'; this.parentElement.style.background='#faf5ff'; } else { this.parentElement.style.borderColor='#e2e8f0'; this.parentElement.style.background='white'; }">
+                <span style="color: #2d3748; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                    🌍 Social Science
+                </span>
+            </label>
+            
+            <label style="display: flex; align-items: center; gap: 12px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; background: white;"
+                   onmouseover="if (!this.querySelector('input').checked) this.style.borderColor='#9f7aea'; if (!this.querySelector('input').checked) this.style.background='#faf5ff'"
+                   onmouseout="if (!this.querySelector('input').checked) this.style.borderColor='#e2e8f0'; if (!this.querySelector('input').checked) this.style.background='white'">
+                <input type="checkbox" name="subjects" value="Hindi" 
+                       style="width: 18px; height: 18px; accent-color: #9f7aea;"
+                       onchange="if (this.checked) { this.parentElement.style.borderColor='#9f7aea'; this.parentElement.style.background='#faf5ff'; } else { this.parentElement.style.borderColor='#e2e8f0'; this.parentElement.style.background='white'; }">
+                <span style="color: #2d3748; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                    🇮🇳 Hindi
+                </span>
+            </label>
+            
+            <label style="display: flex; align-items: center; gap: 12px; padding: 15px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; background: white;"
+                   onmouseover="if (!this.querySelector('input').checked) this.style.borderColor='#9f7aea'; if (!this.querySelector('input').checked) this.style.background='#faf5ff'"
+                   onmouseout="if (!this.querySelector('input').checked) this.style.borderColor='#e2e8f0'; if (!this.querySelector('input').checked) this.style.background='white'">
+                <input type="checkbox" name="subjects" value="English" 
+                       style="width: 18px; height: 18px; accent-color: #9f7aea;"
+                       onchange="if (this.checked) { this.parentElement.style.borderColor='#9f7aea'; this.parentElement.style.background='#faf5ff'; } else { this.parentElement.style.borderColor='#e2e8f0'; this.parentElement.style.background='white'; }">
+                <span style="color: #2d3748; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                    📝 English
+                </span>
+            </label>
         </div>
     </div>
     
@@ -162,13 +227,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Handle role selection styling
-    const roleSelect = document.getElementById('role_id');
+    // Handle role selection styling and show/hide subject selection
+    const roleSelect = document.getElementById('role');
+    const studentSubjectsSection = document.getElementById('studentSubjectsSection');
+    
     roleSelect.addEventListener('change', function() {
         if (this.value) {
             this.style.color = '#374151';
         } else {
             this.style.color = '#6b7280';
+        }
+        
+        // Show/hide subject selection based on role
+        if (this.value === 'student') {
+            studentSubjectsSection.style.display = 'block';
+        } else {
+            studentSubjectsSection.style.display = 'none';
+            // Uncheck all subject checkboxes when hiding
+            const subjectCheckboxes = document.querySelectorAll('input[name="subjects"]');
+            subjectCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+                const label = checkbox.parentElement;
+                label.style.borderColor = '#e2e8f0';
+                label.style.background = 'white';
+            });
         }
     });
 });
