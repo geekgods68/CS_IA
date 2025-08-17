@@ -148,6 +148,9 @@
                 <a href="{{ url_for('admin.view_doubts') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.view_doubts' }}">
                     View Doubts
                 </a>
+                <a href="{{ url_for('admin.attendance') }}" class="nav-link {{ 'active' if request.endpoint == 'admin.attendance' or request.endpoint == 'admin.mark_attendance' or request.endpoint == 'admin.attendance_report' }}">
+                    Attendance Management
+                </a>
             </div>
         </div>
         

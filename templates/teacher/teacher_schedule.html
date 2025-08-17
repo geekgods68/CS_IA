@@ -158,7 +158,7 @@
                                     <div class="col-md-10">
                                         <h6>{{ class.subject }} - {{ class.class_name }}</h6>
                                         <p class="mb-1">{{ class.topic or 'Topic TBA' }}</p>
-                                        <small class="text-muted">{{ class.room_number or 'Room TBA' }} | Duration: {{ class.duration or '1 hour' }}</small>
+                                        <small class="text-muted">{{ class.meeting_link or 'Meeting link TBA' }} | Duration: {{ class.duration or '1 hour' }}</small>
                                         <div class="mt-2">
                                             <span class="badge bg-{{ class.status_color }}">{{ class.status }}</span>
                                             <button class="btn btn-sm btn-outline-primary ms-2">
@@ -193,7 +193,7 @@
                                 <p>Starts in: <strong>{{ next_class.time_until }}</strong></p>
                                 <hr>
                                 <button class="btn btn-sm btn-warning">
-                                    <i class="bi bi-geo-alt"></i> Get Directions to {{ next_class.room_number or 'Classroom' }}
+                                    <i class="bi bi-video"></i> Join Meeting - {{ next_class.meeting_link or 'Virtual Classroom' }}
                                 </button>
                             </div>
                         {% else %}

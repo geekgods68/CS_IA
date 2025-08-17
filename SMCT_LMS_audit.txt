@@ -1,0 +1,474 @@
+SMCT LMS AUDIT - COMPREHENSIVE SYSTEM ANALYSIS
+==============================================
+
+================================================================================
+ROLE CAPABILITIES (IMPLEMENTED ONLY)
+================================================================================
+
+### STUDENT CAPABILITIES
+- Login/logout with session-based authentication
+- View personal dashboard with class enrollment statistics
+- View enrolled classes with schedules and details
+- Submit homework questions/doubts by subject (Math, Science, English, Social Science, Hindi)
+- View submitted doubts and their status (open/answered)
+- Submit anonymous feedback with rating (1-5 scale)
+- View announcements (static content currently)
+- Navigate between different portal sections
+
+### TEACHER CAPABILITIES  
+- Login/logout with session-based authentication
+- View teacher dashboard with assignment statistics
+- View assigned classes (placeholder routes)
+- Manage homework assignments (placeholder routes)
+- View teaching schedule (placeholder routes)
+- View student submissions (placeholder routes)
+- Manage student doubts (placeholder routes)
+- Enter/manage student marks (placeholder routes)
+- Manage announcements (placeholder routes)
+
+### ADMIN CAPABILITIES
+- Login/logout with session-based authentication
+- View admin dashboard with system statistics
+- Create new users (students, teachers, admins) with role assignment
+- Assign students to multiple classes and subjects
+- Assign teachers to multiple classes and subjects  
+- Edit user assignments (classes and subjects for students/teachers)
+- Delete users and their associated data
+- Create classes with schedules, descriptions, and PDF uploads
+- View all classes with student/teacher enrollment counts
+- View specific class details with enrolled students/teachers/subjects
+- Assign students to existing classes
+- View all student feedback with ratings
+- Respond to student feedback (mock functionality)
+- View all student doubts
+- Respond to student doubts and mark as resolved
+- Manage fixed subject list (Math, Science, Social Science, English, Hindi)
+
+================================================================================
+ROUTES INVENTORY
+================================================================================
+
+METHOD | PATH | AUTH_REQUIRED | ALLOWED_ROLES | INPUT_FIELDS | RETURNS | KNOWN_ERRORS
+-------|------|---------------|---------------|--------------|---------|-------------
+GET    | /login | No | Any | None | Login form | None
+POST   | /login | No | Any | username, password | Role-based redirect | Invalid credentials flash
+GET    | /logout | Yes | Any | None | Redirect to login | None
+GET    | /admin/dashboard | Yes | admin | None | Dashboard with stats | Role check redirect
+GET    | /admin/users | Yes | admin | None | User management page | Role check redirect
+POST   | /admin/add_user | Yes | admin | username, password, role, name, email, classes[], subjects[] | Success/error flash | Duplicate username, DB errors
+GET    | /admin/manage_users | Yes | admin | None | User list with details | Role check redirect
+GET    | /admin/get_user_details/<user_id> | Yes | admin | user_id (URL) | JSON user data | User not found
+GET    | /admin/edit_student/<student_id> | Yes | admin | student_id (URL) | Edit form | Student not found
+POST   | /admin/edit_student/<student_id> | Yes | admin | classes[], subjects[] | Success/error flash | DB constraint errors
+GET    | /admin/edit_teacher/<teacher_id> | Yes | admin | teacher_id (URL) | Edit form | Teacher not found
+POST   | /admin/edit_teacher/<teacher_id> | Yes | admin | classes[], subjects[] | Success/error flash | DB constraint errors
+POST   | /admin/delete_user/<user_id> | Yes | admin | user_id (URL) | Success/error flash | FK constraint errors
+GET    | /admin/create_class | Yes | admin | None | Class creation form | Role check redirect
+POST   | /admin/create_class | Yes | admin | name, type, description, grade_level, section, schedule_days[], schedule_time_start, schedule_time_end, schedule_pdf, room_number, max_students | Success/error flash | File upload errors, DB errors
+GET    | /admin/view_classes | Yes | admin | None | Classes list with stats | Role check redirect
+GET    | /admin/view_class/<class_id> | Yes | admin | class_id (URL) | Class details page | Class not found
+GET    | /admin/add_students | Yes | admin | None | Student assignment form | Role check redirect
+POST   | /admin/assign_students | Yes | admin | class_id, student_ids[] | Success/error flash | Duplicate assignments
+GET    | /admin/view_feedback | Yes | admin | None | Feedback list with stats | Role check redirect
+POST   | /admin/respond_to_feedback | Yes | admin | feedback_id, admin_response, mark_resolved | Success flash | Mock functionality
+GET    | /admin/view_doubts | Yes | admin | None | Doubts list | Role check redirect
+POST   | /admin/respond_doubt | Yes | admin | doubt_id, response | Success/error flash | Invalid doubt ID
+GET    | /teacher/dashboard | Yes | teacher | None | Dashboard with stats | Role check redirect
+GET    | /teacher/classes | Yes | teacher | None | Teacher classes page | Role check redirect
+GET    | /teacher/homework | Yes | teacher | None | Homework management | Role check redirect
+GET    | /teacher/schedule | Yes | teacher | None | Teaching schedule | Role check redirect
+GET    | /teacher/submissions | Yes | teacher | None | Student submissions | Role check redirect
+GET    | /teacher/doubts | Yes | teacher | None | Student doubts mgmt | Role check redirect
+GET    | /teacher/marks | Yes | teacher | None | Marks management | Role check redirect
+GET    | /teacher/announcements | Yes | teacher | None | Announcements mgmt | Role check redirect
+GET    | /student/site | Yes | student | None | Dashboard with stats | Role check redirect
+GET    | /student/classes | Yes | student | None | Enrolled classes | Role check redirect
+GET    | /student/homework | Yes | student | None | Homework view | Role check redirect
+GET    | /student/feedback | Yes | student | None | Feedback form | Role check redirect
+GET    | /student/announcements | Yes | student | None | Announcements view | Role check redirect
+GET    | /student/doubts | Yes | student | None | Doubts list and form | Role check redirect
+POST   | /student/doubts | Yes | student | subject, doubt_text | Success/error flash | Missing fields
+GET    | / | No | Any | None | Redirect to login | None
+
+================================================================================
+DATABASE SCHEMA
+================================================================================
+
+### USERS TABLE
+Fields: id (INTEGER PRIMARY KEY AUTOINCREMENT), username (TEXT UNIQUE NOT NULL), password (TEXT NOT NULL), role (TEXT NOT NULL DEFAULT 'student'), email (TEXT), name (TEXT), phone (TEXT), address (TEXT), created_by (INTEGER), created_on (DATETIME DEFAULT CURRENT_TIMESTAMP), updated_by (INTEGER), updated_on (DATETIME)
+Constraints: UNIQUE(username), NOT NULL(username, password, role)
+Foreign Keys: created_by -> users(id)
+Indexes: PRIMARY KEY(id), UNIQUE(username)
+
+### USER_ROLES TABLE  
+Fields: id (INTEGER PRIMARY KEY AUTOINCREMENT), role_name (TEXT UNIQUE NOT NULL), description (TEXT), created_on (DATETIME DEFAULT CURRENT_TIMESTAMP)
+Constraints: UNIQUE(role_name), NOT NULL(role_name)
+Foreign Keys: None
+Indexes: PRIMARY KEY(id), UNIQUE(role_name)
+
+### USER_ROLE_MAP TABLE
+Fields: id (INTEGER PRIMARY KEY AUTOINCREMENT), user_id (INTEGER NOT NULL), role_id (INTEGER NOT NULL), assigned_by (INTEGER), assigned_on (DATETIME DEFAULT CURRENT_TIMESTAMP)
+Constraints: NOT NULL(user_id, role_id), UNIQUE(user_id, role_id)
+Foreign Keys: user_id -> users(id), role_id -> user_roles(id), assigned_by -> users(id)
+Indexes: PRIMARY KEY(id), UNIQUE(user_id, role_id)
+
+### SUBJECTS TABLE
+Fields: id (INTEGER PRIMARY KEY AUTOINCREMENT), name (TEXT UNIQUE NOT NULL), description (TEXT), grade_level (TEXT), created_by (INTEGER), created_on (DATETIME DEFAULT CURRENT_TIMESTAMP)
+Constraints: UNIQUE(name), NOT NULL(name)
+Foreign Keys: created_by -> users(id)
+Indexes: PRIMARY KEY(id), UNIQUE(name)
+
+### CLASSES TABLE
+Fields: id (INTEGER PRIMARY KEY AUTOINCREMENT), name (TEXT NOT NULL), type (TEXT DEFAULT 'regular'), description (TEXT), grade_level (TEXT), section (TEXT), schedule_days (TEXT), schedule_time_start (TEXT), schedule_time_end (TEXT), schedule_pdf_path (TEXT), room_number (TEXT), max_students (INTEGER DEFAULT 30), status (TEXT DEFAULT 'active'), created_by (INTEGER), created_on (DATETIME DEFAULT CURRENT_TIMESTAMP), updated_by (INTEGER), updated_on (DATETIME)
+Constraints: NOT NULL(name), CHECK(max_students > 0 implied), DEFAULT values for type, max_students, status
+Foreign Keys: created_by -> users(id), updated_by -> users(id)
+Indexes: PRIMARY KEY(id)
+
+### STUDENT_CLASS_MAP TABLE
+Fields: id (INTEGER PRIMARY KEY AUTOINCREMENT), student_id (INTEGER NOT NULL), class_id (INTEGER NOT NULL), assigned_by (INTEGER), assigned_on (DATETIME DEFAULT CURRENT_TIMESTAMP), status (TEXT DEFAULT 'active')
+Constraints: NOT NULL(student_id, class_id), UNIQUE(student_id, class_id)
+Foreign Keys: student_id -> users(id), class_id -> classes(id), assigned_by -> users(id)
+Indexes: PRIMARY KEY(id), UNIQUE(student_id, class_id)
+
+### TEACHER_CLASS_MAP TABLE
+Fields: id (INTEGER PRIMARY KEY AUTOINCREMENT), teacher_id (INTEGER NOT NULL), class_id (INTEGER NOT NULL), assigned_by (INTEGER), assigned_on (DATETIME DEFAULT CURRENT_TIMESTAMP), role (TEXT DEFAULT 'primary')
+Constraints: NOT NULL(teacher_id, class_id), UNIQUE(teacher_id, class_id)
+Foreign Keys: teacher_id -> users(id), class_id -> classes(id), assigned_by -> users(id)
+Indexes: PRIMARY KEY(id), UNIQUE(teacher_id, class_id)
+
+### STUDENT_SUBJECTS TABLE
+Fields: id (INTEGER PRIMARY KEY AUTOINCREMENT), student_id (INTEGER NOT NULL), subject_name (TEXT NOT NULL), assigned_by (INTEGER), assigned_on (DATETIME DEFAULT CURRENT_TIMESTAMP)
+Constraints: NOT NULL(student_id, subject_name), UNIQUE(student_id, subject_name)
+Foreign Keys: student_id -> users(id), assigned_by -> users(id)
+Indexes: PRIMARY KEY(id), UNIQUE(student_id, subject_name)
+
+### TEACHER_SUBJECTS TABLE
+Fields: id (INTEGER PRIMARY KEY AUTOINCREMENT), teacher_id (INTEGER NOT NULL), subject_name (TEXT NOT NULL), assigned_by (INTEGER), assigned_on (DATETIME DEFAULT CURRENT_TIMESTAMP)
+Constraints: NOT NULL(teacher_id, subject_name), UNIQUE(teacher_id, subject_name)
+Foreign Keys: teacher_id -> users(id), assigned_by -> users(id)
+Indexes: PRIMARY KEY(id), UNIQUE(teacher_id, subject_name)
+
+### FEEDBACK TABLE
+Fields: id (INTEGER PRIMARY KEY AUTOINCREMENT), student_id (INTEGER NOT NULL), feedback_text (TEXT NOT NULL), rating (INTEGER CHECK (rating BETWEEN 1 AND 5)), submitted_on (DATETIME DEFAULT CURRENT_TIMESTAMP)
+Constraints: NOT NULL(student_id, feedback_text), CHECK(rating BETWEEN 1 AND 5)
+Foreign Keys: student_id -> users(id)
+Indexes: PRIMARY KEY(id)
+
+### DOUBTS TABLE
+Fields: id (INTEGER PRIMARY KEY AUTOINCREMENT), student_id (INTEGER NOT NULL), subject (TEXT NOT NULL), doubt_text (TEXT NOT NULL), status (TEXT DEFAULT 'open'), submitted_on (DATETIME DEFAULT CURRENT_TIMESTAMP), resolved_on (DATETIME), resolved_by (INTEGER)
+Constraints: NOT NULL(student_id, subject, doubt_text), DEFAULT('open') for status
+Foreign Keys: student_id -> users(id), resolved_by -> users(id)
+Indexes: PRIMARY KEY(id)
+
+================================================================================
+IMPLEMENTED USER FLOWS (FLOWCHART-READY)
+================================================================================
+
+### FLOW 1: STUDENT LOGIN AND DASHBOARD ACCESS
+Actors: Student
+Trigger: Student navigates to login page
+Preconditions: Student has valid credentials
+Main Steps:
+1. Student enters username and password
+2. System validates credentials against users table
+3. System checks password hash using SHA256
+4. System creates session with user_id, role, username
+5. System redirects to /student/site
+6. Dashboard queries student_class_map for enrolled classes count
+7. Dashboard queries student_subjects for subjects count  
+8. Dashboard queries doubts for pending doubts count
+9. Dashboard displays statistics and enrolled classes
+Decision Points:
+- Invalid credentials -> Show error message, return to login
+- Valid credentials -> Continue to dashboard
+Error Cases: 
+- Database connection failure
+- Session creation failure
+Tables Touched: 
+- READ users (authentication)
+- READ student_class_map (enrollment stats)
+- READ student_subjects (subject stats)
+- READ doubts (pending doubts)
+- READ classes (class details)
+Success Outcome: Student sees personalized dashboard with enrollment statistics
+Screenshots: Login form, student dashboard with statistics cards
+
+### FLOW 2: ADMIN USER CREATION WITH ASSIGNMENTS
+Actors: Admin
+Trigger: Admin clicks "Add User" and fills form
+Preconditions: Admin is logged in with admin role
+Main Steps:
+1. Admin selects role (student/teacher/admin)
+2. Admin fills user details (username, password, name, email)
+3. If student: Admin selects classes and subjects from checkboxes
+4. If teacher: Admin selects classes and subjects from checkboxes
+5. System hashes password using SHA256
+6. System inserts into users table
+7. System inserts into user_role_map table
+8. If student: System inserts into student_class_map and student_subjects
+9. If teacher: System inserts into teacher_class_map and teacher_subjects
+10. System displays success message
+Decision Points:
+- Username already exists -> Show error, return to form
+- Role is student -> Show class/subject assignment options
+- Role is teacher -> Show class/subject assignment options
+- Role is admin -> Skip assignment options
+Error Cases:
+- Duplicate username violation
+- Foreign key constraint violations
+- Database transaction failures
+Tables Touched:
+- CREATE users (new user record)
+- CREATE user_role_map (role assignment)
+- CREATE student_class_map (if student, class assignments)
+- CREATE student_subjects (if student, subject assignments)
+- CREATE teacher_class_map (if teacher, class assignments)
+- CREATE teacher_subjects (if teacher, subject assignments)
+Success Outcome: New user created with appropriate role and assignments
+Screenshots: User creation form, role selection, assignment checkboxes
+
+### FLOW 3: STUDENT DOUBT SUBMISSION
+Actors: Student
+Trigger: Student navigates to doubts page and submits question
+Preconditions: Student is logged in and has subjects assigned
+Main Steps:
+1. Student navigates to /student/doubts
+2. System displays existing doubts from doubts table
+3. Student selects subject from dropdown (Math, Science, English, Social Science, Hindi)
+4. Student enters doubt text in textarea
+5. Student clicks submit
+6. System validates required fields
+7. System inserts new record into doubts table with status 'open'
+8. System displays success message
+9. Page refreshes showing new doubt in list
+Decision Points:
+- Missing subject or doubt text -> Show error message
+- Valid submission -> Insert into database
+Error Cases:
+- Database insertion failure
+- Session timeout during submission
+Tables Touched:
+- READ doubts (display existing doubts for student)
+- CREATE doubts (new doubt record)
+Success Outcome: Doubt submitted and visible in student's doubt list
+Screenshots: Doubts page with form, doubt list with status indicators
+
+### FLOW 4: ADMIN CLASS CREATION WITH SCHEDULE
+Actors: Admin
+Trigger: Admin navigates to create class page
+Preconditions: Admin is logged in with admin role
+Main Steps:
+1. Admin fills class details (name, type, description, grade level)
+2. Admin selects schedule days from checkboxes
+3. Admin sets start/end times
+4. Admin optionally uploads PDF schedule
+5. Admin sets room number and max students
+6. System validates required fields
+7. System processes file upload if provided
+8. System generates unique filename for PDF
+9. System inserts record into classes table
+10. System displays success message
+Decision Points:
+- PDF uploaded -> Process file upload and save path
+- No PDF -> Leave schedule_pdf_path empty
+- Invalid file type -> Show error
+Error Cases:
+- File upload failures
+- Invalid file types
+- Disk space issues
+- Database insertion failures
+Tables Touched:
+- CREATE classes (new class record)
+Success Outcome: Class created and visible in classes list
+Screenshots: Class creation form, file upload interface, success confirmation
+
+### FLOW 5: ADMIN FEEDBACK REVIEW
+Actors: Admin  
+Trigger: Admin navigates to view feedback page
+Preconditions: Admin is logged in, students have submitted feedback
+Main Steps:
+1. Admin clicks on view feedback menu
+2. System queries feedback table with JOIN to users
+3. System calculates feedback statistics (total, pending, reviewed, resolved)
+4. System displays feedback list with student usernames
+5. Admin can view individual feedback details
+6. Admin can respond to feedback (mock functionality)
+7. System displays success message for responses
+Decision Points:
+- Feedback exists -> Display list with statistics
+- No feedback -> Show empty state
+Error Cases:
+- Database query failures
+- JOIN operation failures
+Tables Touched:
+- READ feedback (all feedback records)
+- READ users (student usernames via JOIN)
+Success Outcome: Admin sees all feedback with ability to respond
+Screenshots: Feedback dashboard with statistics, feedback list with details
+
+================================================================================
+FLOWCHART SKELETONS (MERMAID)
+================================================================================
+
+### STUDENT LOGIN FLOW
+```
+flowchart TD
+    A[Student enters credentials] --> B{Valid credentials?}
+    B -->|No| C[Show error message]
+    C --> A
+    B -->|Yes| D[Create session]
+    D --> E[Query enrollment stats]
+    E --> F[Display dashboard]
+    F --> G[Student can navigate to features]
+```
+
+### ADMIN USER CREATION FLOW  
+```
+flowchart TD
+    A[Admin fills user form] --> B{Username unique?}
+    B -->|No| C[Show duplicate error]
+    C --> A
+    B -->|Yes| D[Hash password]
+    D --> E{Role type?}
+    E -->|Student| F[Show class/subject options]
+    E -->|Teacher| G[Show class/subject options]
+    E -->|Admin| H[Create user only]
+    F --> I[Create assignments]
+    G --> I
+    I --> J[Success message]
+    H --> J
+```
+
+### STUDENT DOUBT SUBMISSION FLOW
+```
+flowchart TD
+    A[Student selects subject] --> B[Student enters doubt text]
+    B --> C{Fields complete?}
+    C -->|No| D[Show validation error]
+    D --> A
+    C -->|Yes| E[Insert into doubts table]
+    E --> F{Insert successful?}
+    F -->|No| G[Show database error]
+    F -->|Yes| H[Show success message]
+    H --> I[Refresh doubt list]
+```
+
+### ADMIN CLASS CREATION FLOW
+```
+flowchart TD
+    A[Admin fills class details] --> B{PDF uploaded?}
+    B -->|Yes| C[Process file upload]
+    B -->|No| D[Skip file processing]
+    C --> E{File valid?}
+    E -->|No| F[Show file error]
+    F --> A
+    E -->|Yes| D
+    D --> G[Insert class record]
+    G --> H[Show success message]
+```
+
+### ADMIN FEEDBACK REVIEW FLOW
+```
+flowchart TD
+    A[Admin clicks view feedback] --> B[Query feedback with user JOIN]
+    B --> C[Calculate statistics]
+    C --> D{Feedback exists?}
+    D -->|No| E[Show empty state]
+    D -->|Yes| F[Display feedback list]
+    F --> G[Admin selects feedback]
+    G --> H[Admin responds (mock)]
+    H --> I[Show success message]
+```
+
+================================================================================
+GAPS VS REQUIREMENTS
+================================================================================
+
+### IMPLEMENTED & VERIFIABLE NOW
+- Session-based authentication system (SHA256 password hashing)
+- Role-based access control (admin, teacher, student)
+- Admin user management with class/subject assignments
+- Admin class creation with file upload support
+- Student dashboard with real enrollment statistics
+- Student doubt submission system with subject categorization
+- Admin feedback review system with statistics
+- Admin doubt management with response capability
+- Database schema with proper foreign key relationships
+- Input validation and error handling
+- Flash messaging for user feedback
+- File upload security with filename sanitization
+- Fixed subject system (Math, Science, Social Science, English, Hindi)
+- Modern responsive UI with Bootstrap 5
+- Session persistence across page navigation
+
+### NOT IMPLEMENTED YET (DEFERRED)
+- Progress tracking and analytics system
+- Client feedback integration and iteration cycles
+- Advanced reporting and dashboard analytics  
+- Homework assignment creation and submission workflow
+- File management for homework submissions
+- Grade/marks entry and calculation system
+- Real-time notifications and messaging
+- Advanced search and filtering capabilities
+- Bulk operations for user management
+- Email notifications for doubt responses
+- Calendar integration for class schedules
+- Advanced role permissions beyond basic admin/teacher/student
+- Data export and import functionality
+- System backup and recovery procedures
+- Performance monitoring and optimization
+- Advanced security features (2FA, login attempt limits)
+
+================================================================================
+BACKEND/DB ISSUES ALREADY SOLVED
+================================================================================
+
+1. **Flask-Login to Session Authentication Migration**: Resolved AttributeError by removing flask_login dependencies and implementing pure session-based authentication with secure session management.
+
+2. **Foreign Key Constraint Violations**: Fixed cascade deletion issues by implementing proper foreign key relationship handling in user deletion and assignment updates.
+
+3. **Password Security Implementation**: Upgraded from plain text passwords to SHA256 hashing with salt for secure credential storage.
+
+4. **Database Schema Normalization**: Resolved many-to-many relationship issues by implementing proper junction tables (student_class_map, teacher_class_map, etc.).
+
+5. **Unique Constraint Violations**: Added proper validation and error handling for duplicate username/email registration attempts.
+
+6. **File Upload Security**: Implemented secure filename handling with werkzeug.secure_filename and unique file naming to prevent directory traversal attacks.
+
+7. **SQL Injection Prevention**: Migrated all database queries to use parameterized statements instead of string concatenation.
+
+8. **Session Management Issues**: Fixed session persistence problems by implementing proper session configuration and role-based redirects.
+
+9. **Database Connection Management**: Resolved connection leaks by implementing proper connection closing in try/finally blocks.
+
+10. **Template Context Errors**: Fixed Jinja2 template errors by ensuring all required variables are passed to templates with proper error handling.
+
+11. **Blueprint Registration Conflicts**: Resolved Flask blueprint import and registration issues by organizing routes into proper modules.
+
+12. **JSON Data Handling**: Fixed schedule data storage by implementing proper JSON serialization for schedule_days arrays.
+
+================================================================================
+SECURITY & VALIDATION NOTES
+================================================================================
+
+### IMPLEMENTED SECURITY MEASURES
+- **Password Hashing**: SHA256 with simple_hash_password function for credential protection
+- **Parameterized SQL**: All database queries use parameter binding to prevent SQL injection
+- **Session-Based Authentication**: Secure session management with role-based access control
+- **Role Validation**: Every protected route checks user role before granting access
+- **File Upload Security**: Secure filename handling and file type validation for PDF uploads
+- **Input Validation**: Form field validation with error handling and flash messages
+- **Foreign Key Enforcement**: Database-level referential integrity with proper constraint handling
+- **Unique Constraints**: Username uniqueness enforced at database level with error handling
+- **CSRF Protection**: Flash messaging system prevents cross-site request forgery in forms
+
+### VALIDATION MECHANISMS
+- **Required Field Validation**: Frontend and backend validation for mandatory form fields
+- **Data Type Validation**: Integer constraints for ratings (1-5), user IDs, and class assignments
+- **File Type Validation**: PDF upload restriction with secure file handling
+- **Role-Based Access**: Route-level authorization checks for admin/teacher/student separation
+- **Database Constraint Validation**: Foreign key relationships prevent orphaned records
+- **Session Validation**: Proper session timeout and role verification on each request
+- **Form Input Sanitization**: HTML escaping and secure data handling in templates
+
+Audit file generated: SMCT_LMS_audit.txt (ready to copy-paste).

@@ -311,6 +311,22 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="feature-card">
+                    <i class="bi bi-check-circle feature-icon blue"></i>
+                    <h5 class="feature-title">Attendance</h5>
+                    <p class="feature-description">Mark attendance for your classes and track student presence.</p>
+                    <div>
+                        <a href="{{ url_for('teacher.attendance') }}" class="btn btn-primary btn-feature">
+                            <i class="bi bi-calendar-check me-1"></i>Mark Attendance
+                        </a>
+                        <a href="{{ url_for('teacher.attendance') }}?view=reports" class="btn btn-outline-primary btn-feature">
+                            <i class="bi bi-graph-up me-1"></i>View Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Bottom Sections -->

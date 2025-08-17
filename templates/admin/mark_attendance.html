@@ -1,0 +1,190 @@
+{% extends "admin/sidebar.html" %}
+
+{% block title %}Mark Attendance{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">Mark Attendance</h1>
+                <a href="{{ url_for('admin.attendance') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Attendance
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-check-circle"></i> 
+                        {{ class_info[1] }} ({{ class_info[0] }}) - {{ attendance_date }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.mark_attendance') }}">
+                        <input type="hidden" name="class_id" value="{{ class_id }}">
+                        <input type="hidden" name="attendance_date" value="{{ attendance_date }}">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Date:</strong></label>
+                                <p class="text-muted">{{ attendance_date }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label"><strong>Class:</strong></label>
+                                <p class="text-muted">{{ class_info[1] }} ({{ class_info[0] }})</p>
+                            </div>
+                        </div>
+
+                        {% if students %}
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="mb-0">Student Attendance</h6>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-success" onclick="markAll('present')">
+                                        Mark All Present
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger" onclick="markAll('absent')">
+                                        Mark All Absent
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th style="width: 30%;">Student Name</th>
+                                        <th style="width: 25%;">Status</th>
+                                        <th style="width: 45%;">Notes (Optional)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in students %}
+                                    <tr>
+                                        <td class="align-middle">
+                                            <strong>{{ student[1] }}</strong>
+                                        </td>
+                                        <td>
+                                            {% set current_status = existing_attendance.get(student[0], {}).get('status', 'present') %}
+                                            <div class="btn-group btn-group-sm w-100" role="group">
+                                                <input type="radio" class="btn-check" name="status_{{ student[0] }}" 
+                                                       id="present_{{ student[0] }}" value="present" 
+                                                       {% if current_status == 'present' %}checked{% endif %}>
+                                                <label class="btn btn-outline-success" for="present_{{ student[0] }}">
+                                                    <i class="fas fa-check"></i> Present
+                                                </label>
+
+                                                <input type="radio" class="btn-check" name="status_{{ student[0] }}" 
+                                                       id="absent_{{ student[0] }}" value="absent" 
+                                                       {% if current_status == 'absent' %}checked{% endif %}>
+                                                <label class="btn btn-outline-danger" for="absent_{{ student[0] }}">
+                                                    <i class="fas fa-times"></i> Absent
+                                                </label>
+
+                                                <input type="radio" class="btn-check" name="status_{{ student[0] }}" 
+                                                       id="late_{{ student[0] }}" value="late" 
+                                                       {% if current_status == 'late' %}checked{% endif %}>
+                                                <label class="btn btn-outline-warning" for="late_{{ student[0] }}">
+                                                    <i class="fas fa-clock"></i> Late
+                                                </label>
+
+                                                <input type="radio" class="btn-check" name="status_{{ student[0] }}" 
+                                                       id="excused_{{ student[0] }}" value="excused" 
+                                                       {% if current_status == 'excused' %}checked{% endif %}>
+                                                <label class="btn btn-outline-info" for="excused_{{ student[0] }}">
+                                                    <i class="fas fa-shield-alt"></i> Excused
+                                                </label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control form-control-sm" 
+                                                   name="notes_{{ student[0] }}" 
+                                                   placeholder="Add notes (optional)"
+                                                   value="{{ existing_attendance.get(student[0], {}).get('notes', '') }}">
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{{ url_for('admin.attendance') }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Attendance
+                            </button>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No students found in this class</h5>
+                            <p class="text-muted">Please check if students are enrolled in this class.</p>
+                        </div>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-check:checked + .btn-outline-success {
+    background-color: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+.btn-check:checked + .btn-outline-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.btn-check:checked + .btn-outline-warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: black;
+}
+
+.btn-check:checked + .btn-outline-info {
+    background-color: #0dcaf0;
+    border-color: #0dcaf0;
+    color: black;
+}
+
+.table th {
+    border-top: none;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.btn-group .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+</style>
+
+<script>
+function markAll(status) {
+    const radios = document.querySelectorAll(`input[type="radio"][value="${status}"]`);
+    radios.forEach(radio => {
+        radio.checked = true;
+    });
+}
+
+// Auto-save functionality could be added here
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any initialization code here
+});
+</script>
+{% endblock %}

@@ -489,7 +489,7 @@ def add_class():
     description = request.form.get('description', '')
     grade_level = request.form.get('grade_level', '')
     section = request.form.get('section', '')
-    room_number = request.form.get('room_number', '')
+    meeting_link = request.form.get('meeting_link', '')
     max_students = request.form.get('max_students', 30)
     
     # Schedule data
@@ -522,12 +522,12 @@ def add_class():
             INSERT INTO classes (
                 name, type, description, grade_level, section,
                 schedule_days, schedule_time_start, schedule_time_end,
-                schedule_pdf_path, room_number, max_students, created_by
+                schedule_pdf_path, meeting_link, max_students, created_by
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             name, class_type, description, grade_level, section,
             json.dumps(schedule_days), schedule_time_start, schedule_time_end,
-            schedule_pdf_path, room_number, max_students, current_user.id
+            schedule_pdf_path, meeting_link, max_students, current_user.id
         ))
         
         conn.commit()
@@ -556,7 +556,7 @@ def view_classes():
         SELECT 
             c.id, c.name, c.type, c.description, c.grade_level, c.section,
             c.schedule_days, c.schedule_time_start, c.schedule_time_end,
-            c.room_number, c.max_students, c.status,
+            c.meeting_link, c.max_students, c.status,
             COUNT(DISTINCT scm.student_id) as student_count,
             COUNT(DISTINCT tcm.teacher_id) as teacher_count
         FROM classes c
@@ -1020,6 +1020,238 @@ def admin_stats():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+    finally:
+        conn.close()
+
+
+# ============================================================================
+# ATTENDANCE MANAGEMENT ROUTES
+# ============================================================================
+
+@admin_bp.route('/attendance')
+def attendance():
+    """Admin attendance management page"""
+    if 'role' not in session or session['role'] != 'admin':
+        return redirect(url_for('auth.login'))
+    
+    conn = get_db()
+    cur = conn.cursor()
+    
+    try:
+        # Get all classes for dropdown
+        cur.execute('''
+            SELECT id, name, grade_level 
+            FROM classes 
+            WHERE status = 'active'
+            ORDER BY grade_level, name
+        ''')
+        classes = cur.fetchall()
+        
+        # Get attendance data for the last 30 days
+        cur.execute('''
+            SELECT 
+                a.id,
+                a.attendance_date,
+                a.status,
+                a.notes,
+                u.name as student_name,
+                c.name as class_name,
+                c.grade_level,
+                marker.name as marked_by_name,
+                a.marked_on
+            FROM attendance a
+            JOIN users u ON a.student_id = u.id
+            JOIN classes c ON a.class_id = c.id
+            JOIN users marker ON a.marked_by = marker.id
+            WHERE a.attendance_date >= date('now', '-30 days')
+            ORDER BY a.attendance_date DESC, c.name, u.name
+        ''')
+        attendance_records = cur.fetchall()
+        
+        return render_template('admin/attendance.html', 
+                             classes=classes, 
+                             attendance_records=attendance_records)
+        
+    except Exception as e:
+        flash(f'Error loading attendance data: {str(e)}', 'error')
+        return redirect(url_for('admin.dashboard'))
+    finally:
+        conn.close()
+
+@admin_bp.route('/attendance/mark', methods=['GET', 'POST'])
+def mark_attendance():
+    """Mark attendance for a class"""
+    if 'role' not in session or session['role'] != 'admin':
+        return redirect(url_for('auth.login'))
+    
+    if request.method == 'GET':
+        class_id = request.args.get('class_id')
+        attendance_date = request.args.get('date', datetime.now().strftime('%Y-%m-%d'))
+        
+        if not class_id:
+            flash('Class ID is required', 'error')
+            return redirect(url_for('admin.attendance'))
+        
+        conn = get_db()
+        cur = conn.cursor()
+        
+        try:
+            # Get class details
+            cur.execute('SELECT name, grade_level FROM classes WHERE id = ?', (class_id,))
+            class_info = cur.fetchone()
+            
+            if not class_info:
+                flash('Class not found', 'error')
+                return redirect(url_for('admin.attendance'))
+            
+            # Get students in this class
+            cur.execute('''
+                SELECT u.id, u.name
+                FROM users u
+                JOIN student_class_map scm ON u.id = scm.student_id
+                WHERE scm.class_id = ? AND u.role = 'student' AND scm.status = 'active'
+                ORDER BY u.name
+            ''', (class_id,))
+            students = cur.fetchall()
+            
+            # Get existing attendance for this date
+            cur.execute('''
+                SELECT student_id, status, notes
+                FROM attendance
+                WHERE class_id = ? AND attendance_date = ?
+            ''', (class_id, attendance_date))
+            existing_attendance = {row[0]: {'status': row[1], 'notes': row[2]} 
+                                 for row in cur.fetchall()}
+            
+            return render_template('admin/mark_attendance.html',
+                                 class_id=class_id,
+                                 class_info=class_info,
+                                 students=students,
+                                 attendance_date=attendance_date,
+                                 existing_attendance=existing_attendance)
+            
+        except Exception as e:
+            flash(f'Error loading class data: {str(e)}', 'error')
+            return redirect(url_for('admin.attendance'))
+        finally:
+            conn.close()
+    
+    # POST request - save attendance
+    class_id = request.form.get('class_id')
+    attendance_date = request.form.get('attendance_date')
+    
+    if not class_id or not attendance_date:
+        flash('Class ID and date are required', 'error')
+        return redirect(url_for('admin.attendance'))
+    
+    conn = get_db()
+    cur = conn.cursor()
+    
+    try:
+        # Get all students in the class
+        cur.execute('''
+            SELECT u.id
+            FROM users u
+            JOIN student_class_map scm ON u.id = scm.student_id
+            WHERE scm.class_id = ? AND u.role = 'student' AND scm.status = 'active'
+        ''', (class_id,))
+        students = [row[0] for row in cur.fetchall()]
+        
+        attendance_saved = 0
+        for student_id in students:
+            status = request.form.get(f'status_{student_id}', 'absent')
+            notes = request.form.get(f'notes_{student_id}', '').strip()
+            
+            # Delete existing attendance record if any
+            cur.execute('''
+                DELETE FROM attendance 
+                WHERE student_id = ? AND class_id = ? AND attendance_date = ?
+            ''', (student_id, class_id, attendance_date))
+            
+            # Insert new attendance record
+            cur.execute('''
+                INSERT INTO attendance (student_id, class_id, attendance_date, status, marked_by, notes)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (student_id, class_id, attendance_date, status, session['user_id'], notes))
+            
+            attendance_saved += 1
+        
+        conn.commit()
+        flash(f'Attendance marked for {attendance_saved} students', 'success')
+        return redirect(url_for('admin.attendance'))
+        
+    except Exception as e:
+        conn.rollback()
+        flash(f'Error saving attendance: {str(e)}', 'error')
+        return redirect(url_for('admin.mark_attendance', class_id=class_id, date=attendance_date))
+    finally:
+        conn.close()
+
+@admin_bp.route('/attendance/report')
+def attendance_report():
+    """Generate attendance report"""
+    if 'role' not in session or session['role'] != 'admin':
+        return redirect(url_for('auth.login'))
+    
+    class_id = request.args.get('class_id')
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    
+    conn = get_db()
+    cur = conn.cursor()
+    
+    try:
+        # Build query based on filters
+        where_conditions = []
+        params = []
+        
+        if class_id:
+            where_conditions.append('a.class_id = ?')
+            params.append(class_id)
+        
+        if start_date:
+            where_conditions.append('a.attendance_date >= ?')
+            params.append(start_date)
+        
+        if end_date:
+            where_conditions.append('a.attendance_date <= ?')
+            params.append(end_date)
+        
+        where_clause = ' AND '.join(where_conditions) if where_conditions else '1=1'
+        
+        # Get attendance summary
+        cur.execute(f'''
+            SELECT 
+                u.name as student_name,
+                c.name as class_name,
+                c.grade_level,
+                COUNT(*) as total_days,
+                SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) as present_days,
+                SUM(CASE WHEN a.status = 'absent' THEN 1 ELSE 0 END) as absent_days,
+                SUM(CASE WHEN a.status = 'late' THEN 1 ELSE 0 END) as late_days,
+                SUM(CASE WHEN a.status = 'excused' THEN 1 ELSE 0 END) as excused_days,
+                ROUND((SUM(CASE WHEN a.status = 'present' THEN 1 ELSE 0 END) * 100.0 / COUNT(*)), 2) as attendance_percentage
+            FROM attendance a
+            JOIN users u ON a.student_id = u.id
+            JOIN classes c ON a.class_id = c.id
+            WHERE {where_clause}
+            GROUP BY u.id, c.id
+            ORDER BY c.name, u.name
+        ''', params)
+        report_data = cur.fetchall()
+        
+        # Get all classes for filter dropdown
+        cur.execute('SELECT id, name, grade_level FROM classes ORDER BY grade_level, name')
+        classes = cur.fetchall()
+        
+        return render_template('admin/attendance_report.html',
+                             report_data=report_data,
+                             classes=classes,
+                             filters={'class_id': class_id, 'start_date': start_date, 'end_date': end_date})
+        
+    except Exception as e:
+        flash(f'Error generating report: {str(e)}', 'error')
+        return redirect(url_for('admin.attendance'))
     finally:
         conn.close()
 
