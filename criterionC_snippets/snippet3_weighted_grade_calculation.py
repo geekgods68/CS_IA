@@ -2,6 +2,61 @@
 # Demonstrates weighted grade calculation algorithm for student reports
 # Source: routes/teacher.py, lines 870-890
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 def calculate_weighted_average(marks):
     """Calculate weighted average from assessment marks
     
